@@ -32,7 +32,7 @@ header {
 }
 
 header.collapsed {
-    width: 60px;
+    width: 80px;
 }
 
 /* logo */
@@ -40,12 +40,17 @@ header.collapsed {
     width: 100px;
     height: auto;
     margin-bottom: 30px;
-    border-radius: 50%;
+    border-radius: 40%;
 }
 
 header.collapsed .image-container img {
-    width: 40px;
-    opacity: 0.5;
+    width: 50px;
+}
+
+/* Gemini helped with the code here */
+header.collapsed nav {
+    opacity: 0;
+    pointer-events: none;
 }
 
 nav {
@@ -66,10 +71,15 @@ nav a:hover {
     color: var(--accent1-color);
 }
 
-/* menu button with help of w3schools */
-.container {
-    cursor: pointer;
 
+/* menu button with help of w3schools */
+.sidebar-toggle {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0; 
+    margin-top: auto;
+    margin-bottom: 30px; 
 }
 
 .bar1, .bar2, .bar3 {
@@ -99,7 +109,7 @@ main {
 }
 
 header.collapsed + main {
-    margin-left: 60px;
+    margin-left: 80px;
 }
 
 /* Footer content */
@@ -128,5 +138,5 @@ footer a:hover {
 }
 
 header.collapsed ~ footer {
-    margin-left: 60px;
+    margin-left: 80px;
 }

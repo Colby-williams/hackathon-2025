@@ -1,4 +1,10 @@
-function toggleSidebar(button) {
-    button.classList.toggle("change");
-    document.querySelector("header").classList.toggle("collapsed");
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleButton = document.querySelector('.sidebar-toggle');
+    const header = document.querySelector('header');
+    if (toggleButton && header) {
+        toggleButton.addEventListener('click', () => {
+            toggleButton.classList.toggle('change');
+            header.classList.toggle('collapsed');
+        });
+    }
+});

@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #2e8b57; /* sea green */
-    --secondary-color: #8fbc8f; /* light green */
-    --accent1-color: #f4a460; /* sandy brown */
-    --accent2-color: #ffefd5; /* papaya whip */
-    --dark-text: #2c3e50;
+    --primary-color: #1e90ff;
+    --secondary-color: #87cefa;
+    --accent1-color: #f0f8ff;
+    --accent2-color: #4682b4;
+    --dark-text: #000;
 }
 
 /* Resets defaults styling */

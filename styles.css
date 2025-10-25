@@ -73,6 +73,26 @@ main {
 
 /* Footer content */
 footer {
-    background-color: var(--primary-color);
-    color: var(--accent1-color);
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    text-align: center;
+    margin-left: 200px;
+    padding: 20px;
+}
+
+footer p {
+    padding: 5px;
+    line-height: 1.6;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 5px;
+    line-height: 1.6;
+}
+
+footer a:hover {
+    color: var(--accent2-color);
+    text-decoration: underline;
 }

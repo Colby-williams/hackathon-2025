@@ -1,0 +1,118 @@
+:root {
+    --primary-color: #2e8b57; /* sea green */
+    --secondary-color: #8fbc8f; /* light green */
+    --accent1-color: #f4a460; /* sandy brown */
+    --accent2-color: #ffefd5; /* papaya whip */
+    --dark-text: #2c3e50;
+}
+
+/* Resets defaults styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Header styles */
+header {
+    background-color: var(--primary-color);
+    height: 100vh;
+    width: 200px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 30px;
+}
+
+.image-container img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 50%;
+}
+
+nav {
+    display: flex;
+    flex-flow: column wrap;
+    width: 100%;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--accent1-color);
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+nav a:hover {
+    text-decoration: underline;
+    color: var(--secondary-color);
+}
+
+/* Main content */
+.title {
+    font-size: 2rem;
+    color: var(--dark-text);
+    display: flex;
+    justify-content: center;
+}
+
+main {
+    margin-left: 200px;
+    padding: 40px;
+    background-color: var(--accent2-color);
+    min-height: 100vh;
+    color: var(--dark-text);
+    font-family: Arial, sans-serif;
+}
+/* Product and pricing page */
+.product { 
+    text-align: center;
+
+}
+.price-box {
+    width: 1000px;
+   display: flex;
+   border: var(--primary-color) solid 8px;
+   border-radius: 5%;
+   margin: 80px auto;
+   flex-flow: column wrap;
+}
+.price-box img {
+max-width: 90%;
+margin: 10px auto;
+border: var(--secondary-color) solid 3px;
+}
+.price-box p, .price-box h2 {
+    text-align: center;
+}
+/* Footer content */
+footer {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    text-align: center;
+    margin-left: 200px;
+    padding: 20px;
+}
+
+footer p {
+    padding: 5px;
+    line-height: 1.6;
+}
+
+footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 5px;
+    line-height: 1.6;
+}
+
+footer a:hover {
+    color: var(--accent2-color);
+    text-decoration: underline;
+}

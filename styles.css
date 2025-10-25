@@ -14,30 +14,48 @@
 }
 
 /* Header styles */
-
-.title {
-    font-size: 2rem;
-    color: var(--dark-text);
+header {
+    background-color: var(--primary-color);
+    height: 100vh;
+    width: 220px;
+    position: fixed;
     display: flex;
-    justify-content: center;
-    
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 30px;
 }
 
 nav {
     display: flex;
     flex-flow: column wrap;
-    padding: 25px;
-    flex: 1;
-    max-width: 200px;
-    height: 100%;
+    width: 100%;
 }
 
 nav a {
     text-decoration: none;
-    color: var(--dark-text);
+    color: var(--accent1-color);
     padding: 50px 25px;
 }
 
 nav a:hover {
     text-decoration: underline;
+    color: var(--secondary-color);
+}
+
+/* Main content */
+.title {
+    font-size: 2rem;
+    color: var(--dark-text);
+    display: flex;
+    justify-content: center;
+}
+
+main {
+    margin-left: 220px;
+    padding: 40px;
+    background-color: var(--accent2-color);
+    min-height: 100vh;
+    color: var(--dark-text);
+    font-family: Arial, sans-serif;
 }

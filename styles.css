@@ -41,3 +41,16 @@ nav a {
 nav a:hover {
     text-decoration: underline;
 }
+
+
+
+
+
+
+
+img{
+    width:300px;
+    height:300px;
+    object-fit: cover;
+    margin: 0 auto;
+}

@@ -1,0 +1,44 @@
+:root {
+    --primary-color: #2e8b57; /* sea green */
+    --secondary-color: #8fbc8f; /* light green */
+    --accent1-color: #f4a460; /* sandy brown */
+    --accent2-color: #ffefd5; /* papaya whip */
+    --dark-text: #2c3e50;
+}
+
+
+/* Resets defaults styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Header styles */
+
+.title {
+    font-size: 3rem;
+    color: var(--dark-text);
+    display: flex;
+    justify-content: center;
+    
+}
+
+nav {
+    display: flex;
+    flex-flow: column wrap;
+    padding: 25px;
+    flex: 1;
+    max-width: 200px;
+    height: 100%;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--dark-text);
+    padding: 50px 25px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}

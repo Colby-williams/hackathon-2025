@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bike Map</title>
+</head>
+<body>
+
+<h1>My First Google Map</h1>
+
+<div id="googleMap" style="width: 100%;height:800px;"></div>
+
+<script src="config.js"></script>
+
+<script>
+function initMap() {
+var mapProp= {
+  center:new google.maps.LatLng(43.822890994684585, -111.78642427995563),
+  zoom:15,
+};
+var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+const locations = [
+    { lat: 43.81488858304542, lng: -111.79005227761711, title: "B1" },
+          { lat: 43.8201, lng: -111.7859, title: "B2" },
+          { lat: 43.825, lng: -111.789, title: "B3" },
+          { lat: 43.8185, lng: -111.783, title: "B4" },
+        ];
+
+locations.forEach((loc) => {
+          new google.maps.Marker({
+            position: { lat: loc.lat, lng: loc.lng },
+            map: map,
+            title: loc.title,
+          });
+        });
+      }
+
+
+</script>
+
+<!-- Used AI to figure out how to hide the key file from the Gitgub -->
+<script async defer >
+    const apiKey = CONFIG.GOOGLE_MAPS_KEY;
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+    document.head.appendChild(script);
+</script>
+<!-- So the section above has written by AI -->
+</body>
+</html>

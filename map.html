@@ -1,69 +1,114 @@
-<!-- index.html
-- Shows a full-screen "Choose User" gate first.
-- After a user is chosen, loads the map, shows green (available) and red (rented) markers.
-- InfoWindow:
-  - If available and user has no active rental -> "Rent Now"
-  - If rented by me -> "End Ride Here"
-  - If rented by someone else -> "Rented by <user>"
-- Displays per-minute price by vehicle type.
-Place next to app.py. Requires config.js (or the /config.js route via env var). -->
+<!-- map.html
+Put this file next to app.py and index.html.
+Open at: http://127.0.0.1:5000/map.html (or /map)
+
+New:
+- "Account" button opens a modal with current balance and a Deposit form.
+- Balance shown in header; negative balance blocks "Rent Now" in the InfoWindow.
+- InfoWindow updates in-place after Rent/End/Deposit.
+-->
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Micromobility Rentals — Map</title>
+  <title>E‑Bike Rentals — Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root { --ok:#27ae60; --bad:#d35454; }
-    body { font-family: system-ui, sans-serif; margin: 0; }
-    header { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; gap: 12px; align-items: center; }
-    #googleMap { width: 100%; height: 70vh; }
-    .panel { padding: 12px 16px; }
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    button { padding: 6px 10px; cursor: pointer; }
-    .muted { color: #666; }
+    :root { --ok:#27ae60; --bad:#d35454; --border:#e6e6e6; --ink:#111; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; color: #222; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); }
+    header .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    #googleMap { width: 100%; height: 60vh; }
+    .panel { padding: 12px 16px; border-top:1px solid var(--border); }
+    .row { display:flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    button { padding: 6px 10px; border-radius: 8px; border:1px solid #ddd; background:#fafafa; cursor:pointer; }
+    button.primary { background:var(--ink); color:#fff; border-color:var(--ink); }
+    button:disabled { opacity: .55; cursor:not-allowed; }
+    a.button { text-decoration:none; padding: 6px 10px; border-radius:8px; border:1px solid #ddd; background:#fafafa; color:#111; }
+    input[type="number"], input[type="text"], input[type="password"] { padding: 6px 8px; border:1px solid #ddd; border-radius: 8px; }
     .pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #ddd; }
-    .ok { background: #e8f7ed; color: #146c2e; border-color: #bfe8cc; }
-    .bad { background: #fdeeee; color: #a11; border-color: #f6caca; }
-    #err { color: #a11; padding: 8px 16px; display: none; }
+    .ok { background: #e8f7ed; color:#146c2e; border-color:#bfe8cc; }
+    .bad { background: #fdeeee; color:#a11; border-color:#f6caca; }
+    .muted { color:#666; }
+    .neg { color:#a11; font-weight:700; }
+    #err { color:#a11; padding: 8px 16px; display:none; }
 
-    /* User gate overlay */
-    #gate {
-      position: fixed; inset: 0; background: #fff; display: grid; place-items: center; z-index: 10;
-      border-bottom: 1px solid #eee;
+    /* Login overlay */
+    #loginGate {
+      position: fixed; inset: 0; background: #fff; display: none; place-items: center; z-index: 10;
     }
-    #gate .card {
+    #loginGate .card {
       border: 1px solid #ddd; border-radius: 10px; padding: 16px; width: min(420px, 92vw);
       box-shadow: 0 10px 24px rgba(0,0,0,0.06);
     }
-    input, select { padding: 8px; width: 100%; box-sizing: border-box; }
+
+    /* Account modal */
+    #accountModal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      display: none; align-items: center; justify-content: center; z-index: 20;
+    }
+    #accountSheet {
+      background: #fff; width: min(440px, 92vw);
+      border-radius: 12px; padding: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    }
+    #accountSheet h3 { margin: 0 0 8px 0; }
+    #accountClose {
+      float: right; border:none; background:transparent; font-size:20px; cursor:pointer;
+    }
   </style>
 </head>
 <body>
 
-<div id="gate">
+<div id="loginGate">
   <div class="card">
-    <h3>Choose User</h3>
-    <p class="muted" style="margin-top:-6px">Select or type a user ID to continue.</p>
-    <div class="row" style="flex-direction: column; align-items: stretch;">
-      <select id="userPreset">
-        <option value="">-- Pick a sample user --</option>
-        <option value="u123">u123</option>
-        <option value="u124">u124</option>
-        <option value="u125">u125</option>
-      </select>
-      <input id="userId" placeholder="or type user id, e.g. u999" />
-      <button id="enterBtn">Enter</button>
+    <h3>Sign in</h3>
+    <p class="muted" style="margin-top:-6px">Demo users: u123/pass123, u124/pass124, u125/pass125</p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <input id="username" placeholder="username (e.g. u123)" />
+      <input id="password" placeholder="password (e.g. pass123)" type="password" />
+      <button id="loginBtn" class="primary">Sign in</button>
+      <div id="loginErr" class="muted" style="color:#a11; display:none;"></div>
+      <div class="muted">Or <a href="index.html">go back to home</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- Account Modal -->
+<div id="accountModal">
+  <div id="accountSheet">
+    <button id="accountClose" title="Close">×</button>
+    <h3>Account</h3>
+    <div class="row">
+      <div class="muted">User:</div>
+      <div id="accountUser" style="font-weight:600;">—</div>
+    </div>
+    <div class="row" style="margin-top:6px;">
+      <div class="muted">Balance:</div>
+      <div id="accountBalance" style="font-weight:600;">$0.00</div>
+    </div>
+    <div id="accountNegNote" class="muted" style="margin-top:4px;"></div>
+    <div class="row" style="margin-top:12px;">
+      <input id="accountAmount" type="number" min="0" step="0.50" placeholder="Add $" style="width:140px;">
+      <button id="accountDepositBtn" class="primary">Deposit</button>
+      <div id="accountMsg" class="muted" style="margin-left:8px;"></div>
     </div>
   </div>
 </div>
 
 <header>
-  <strong>Micromobility Map</strong>
+  <div class="row">
+    <a href="index.html" class="button">← Home</a>
+    <strong>Rentals Map</strong>
+  </div>
   <div class="row">
     <span class="muted">User:</span>
-    <span id="currentUser" style="font-weight:600;"></span>
-    <button id="switchUserBtn">Switch User</button>
+    <span id="currentUser" style="font-weight:600;">(checking…)</span>
+    <span class="muted">Balance:</span>
+    <span id="balance" style="font-weight:600;">$0.00</span>
+    <button id="accountBtn">Account</button>
+    <button id="logoutBtn">Log out</button>
     <button id="refreshBtn">Refresh Bikes</button>
   </div>
 </header>
@@ -72,12 +117,12 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
 <div id="googleMap"></div>
 
 <div class="panel">
-  <div class="row" style="gap:16px;">
+  <div class="row" style="gap:16px; margin-bottom:8px;">
     <div><span class="pill ok">Available</span></div>
     <div><span class="pill bad">Rented</span></div>
   </div>
-  <h3>Current Rental</h3>
-  <div id="rentalInfo" class="muted">No active rental.</div>
+  <h3 style="margin:4px 0;">Current Rental</h3>
+  <div id="rentalInfo" class="muted">Sign in to start renting.</div>
   <div class="row" style="margin-top:8px;">
     <button id="endBtn" disabled>End Ride</button>
   </div>
@@ -85,10 +130,21 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
 
 <script src="config.js"></script>
 <script>
-  // Error helper
+  // ------- Helpers -------
   const showErr = (m) => { const el = document.getElementById('err'); el.textContent = m; el.style.display = 'block'; console.error(m); };
+  async function fetchJSON(url, options) {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      const text = await res.text();
+      const err = new Error(text || "HTTP " + res.status);
+      err.status = res.status;
+      throw err;
+    }
+    return res.json();
+  }
+  const fmt$ = cents => "$" + (Math.round(cents) / 100).toFixed(2);
 
-  // Globals
+  // ------- Globals -------
   let map, infoWindow;
   let markers = {};    // { id: Marker }
   let bikesIndex = {}; // { id: bike }
@@ -96,48 +152,154 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
   let rentalPollTimer = null;
   let bikesPollTimer = null;
   let currentUserId = null;
+  let balanceCents = 0;
+  let lastInfoBikeId = null, lastInfoMarker = null;
 
-  // User gate
-  const userPreset = document.getElementById('userPreset');
-  const userInput  = document.getElementById('userId');
-  userPreset.onchange = () => { if (userPreset.value) userInput.value = userPreset.value; };
+  // ------- Account modal controls -------
+  const accountModal = document.getElementById("accountModal");
+  const accountClose = document.getElementById("accountClose");
+  const accountBtn = document.getElementById("accountBtn");
+  const accountUser = document.getElementById("accountUser");
+  const accountBalance = document.getElementById("accountBalance");
+  const accountMsg = document.getElementById("accountMsg");
+  const accountNegNote = document.getElementById("accountNegNote");
+  const accountAmount = document.getElementById("accountAmount");
+  const accountDepositBtn = document.getElementById("accountDepositBtn");
 
-  document.getElementById('enterBtn').onclick = () => {
-    const typed = (userInput.value || '').trim();
-    if (!typed) { showErr("Please select or type a user ID."); return; }
-    currentUserId = typed;
-    document.getElementById('currentUser').textContent = currentUserId;
-    document.getElementById('gate').style.display = 'none';
-    afterUserChosen();
-  };
+  function openAccount() {
+    accountUser.textContent = currentUserId || "—";
+    accountMsg.textContent = "";
+    accountModal.style.display = "flex";
+    refreshBalance();
+  }
+  function closeAccount() {
+    accountModal.style.display = "none";
+  }
+  accountBtn.onclick = openAccount;
+  accountClose.onclick = closeAccount;
+  accountModal.addEventListener("click", (e) => { if (e.target === accountModal) closeAccount(); });
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAccount(); });
 
-  document.getElementById('switchUserBtn').onclick = () => {
-    // Reset UI and show gate again
-    currentUserId = null;
-    rentalId = null;
-    document.getElementById('rentalInfo').textContent = "No active rental.";
-    document.getElementById('endBtn').disabled = true;
-    document.getElementById('gate').style.display = 'grid';
-  };
+  // ------- Balance helpers -------
+  function setBalance(cents) {
+    balanceCents = Number.isFinite(cents) ? cents : 0;
+    const s = fmt$(balanceCents);
+    const headerBal = document.getElementById("balance");
+    headerBal.textContent = s;
+    headerBal.classList.toggle("neg", balanceCents < 0);
+    accountBalance.textContent = s;
+    accountBalance.classList.toggle("neg", balanceCents < 0);
+    accountNegNote.textContent = balanceCents < 0 ? "Your balance is negative. Deposit to rent." : "";
 
-  // API helper
-  async function fetchJSON(url, options) {
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
+    // Re-render InfoWindow buttons to reflect ability to rent
+    if (lastInfoBikeId && markers[lastInfoBikeId]) {
+      renderInfoWindow(lastInfoBikeId, markers[lastInfoBikeId]);
+    }
   }
 
-  // Map init (called by Google Maps JS)
+  async function refreshBalance() {
+    try {
+      const data = await fetchJSON("/wallet", { credentials: "same-origin" });
+      setBalance(data.balance_cents || 0);
+    } catch (e) {
+      try {
+        const me = await fetchJSON("/me", { credentials: "same-origin" });
+        setBalance(me.balance_cents || 0);
+      } catch {}
+    }
+  }
+
+  accountDepositBtn.onclick = async () => {
+    const v = parseFloat(accountAmount.value);
+    if (isNaN(v) || v <= 0) return alert("Enter a positive dollar amount.");
+    accountDepositBtn.disabled = true;
+    accountDepositBtn.textContent = "Depositing...";
+    try {
+      const data = await fetchJSON("/wallet/deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ amount_dollars: v })
+      });
+      accountAmount.value = "";
+      setBalance(data.balance_cents || 0);
+      accountMsg.textContent = "Deposit successful.";
+      // Also refresh bikes and InfoWindow availability quietly
+      setTimeout(loadBikes, 200);
+    } catch (e) {
+      accountMsg.textContent = e.message || "Deposit failed";
+    } finally {
+      accountDepositBtn.disabled = false;
+      accountDepositBtn.textContent = "Deposit";
+    }
+  };
+
+  // ------- Auth/UI wiring -------
+  async function checkSessionOrPrompt() {
+    try {
+      const me = await fetchJSON("/me", { credentials: "same-origin" });
+      if (me.authenticated) {
+        currentUserId = me.user_id;
+        document.getElementById("currentUser").textContent = currentUserId;
+        document.getElementById("loginGate").style.display = "none";
+        setBalance(me.balance_cents || 0);
+        enableApp();
+      } else {
+        document.getElementById("currentUser").textContent = "(not signed in)";
+        document.getElementById("loginGate").style.display = "grid";
+      }
+    } catch (e) {
+      document.getElementById("currentUser").textContent = "(error)";
+      showErr("Failed to check session: " + e.message);
+    }
+  }
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const err = document.getElementById("loginErr");
+    err.style.display = "none";
+    try {
+      const res = await fetchJSON("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ username, password })
+      });
+      currentUserId = res.user_id;
+      document.getElementById("currentUser").textContent = currentUserId;
+      setBalance(res.balance_cents || 0);
+      document.getElementById("loginGate").style.display = "none";
+      enableApp();
+    } catch (e) {
+      err.textContent = e.message || "Login failed";
+      err.style.display = "block";
+    }
+  };
+
+  document.getElementById("logoutBtn").onclick = async () => {
+    try { await fetchJSON("/logout", { method: "POST", credentials: "same-origin" }); } catch (e) {}
+    currentUserId = null;
+    clearRentalState("Signed out.");
+    setBalance(0);
+    document.getElementById("currentUser").textContent = "(not signed in)";
+    document.getElementById("loginGate").style.display = "grid";
+    closeAccount();
+  };
+
+  // ------- Map init -------
   function initMap() {
     map = new google.maps.Map(document.getElementById("googleMap"), {
       center: { lat: 43.82289, lng: -111.78642 },
       zoom: 14,
     });
     infoWindow = new google.maps.InfoWindow();
+    checkSessionOrPrompt();
   }
   window.initMap = initMap;
 
-  function afterUserChosen() {
+  // ------- Start app after login/session -------
+  function enableApp() {
     loadBikes().then(fitToBikes).catch(e => showErr("Failed to load bikes: " + e.message));
     startBikesPolling();
     startRentalPolling();
@@ -145,28 +307,41 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
     document.getElementById("endBtn").onclick = async () => {
       if (!rentalId) return;
       const center = map.getCenter();
-      await endRide(center.lat(), center.lng());
+      const data = await endRide(center.lat(), center.lng());
+      if (data && typeof data.user_balance_cents === "number") setBalance(data.user_balance_cents);
+      else refreshBalance();
     };
     document.getElementById("refreshBtn").onclick = loadBikes;
   }
 
-  // Polling
+  // ------- Polling -------
   function startBikesPolling() {
     clearInterval(bikesPollTimer);
     bikesPollTimer = setInterval(loadBikes, 5000);
   }
   function startRentalPolling() {
     clearInterval(rentalPollTimer);
-    rentalPollTimer = setInterval(async () => {
-      if (!rentalId) return;
-      try {
-        const s = await fetchJSON(`/rentals/${rentalId}`);
-        updateRentalUI(s);
-      } catch (e) { console.warn("rental poll:", e.message); }
-    }, 1000);
+    rentalPollTimer = setInterval(pollRentalOnce, 1000);
+  }
+  function clearRentalState(msg) {
+    rentalId = null;
+    window.__activeBikeId = null;
+    document.getElementById("endBtn").disabled = true;
+    if (msg) document.getElementById("rentalInfo").innerText = msg;
+    loadBikes().catch(()=>{});
+  }
+  async function pollRentalOnce() {
+    if (!rentalId) return;
+    try {
+      const res = await fetch(`/rentals/${rentalId}`);
+      if (res.status === 404) { clearRentalState("Your previous rental expired on the server (dev restart)."); return; }
+      if (!res.ok) { console.warn("rental poll error:", res.status); return; }
+      const s = await res.json();
+      updateRentalUI(s);
+    } catch (e) { console.warn("rental poll exception:", e); }
   }
 
-  // Data load
+  // ------- Data load -------
   async function loadBikes() {
     const list = await fetchJSON("/bikes");
     bikesIndex = {};
@@ -175,7 +350,6 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
     syncMyActiveRental(list);
     return list;
   }
-
   function syncMyActiveRental(list) {
     if (!currentUserId) return;
     const mine = list.find(b => b.rented_by_user_id === currentUserId);
@@ -190,28 +364,15 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
     }
   }
 
-  // Markers
+  // ------- Markers -------
   function markerIcon(available) {
-    const color = available ? "#27ae60" : "#d35454"; // green vs red
-    return {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 8,
-      fillColor: color,
-      fillOpacity: 0.9,
-      strokeColor: "#ffffff",
-      strokeWeight: 2,
-    };
+    const color = available ? "#27ae60" : "#d35454";
+    return { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: color, fillOpacity: 0.9, strokeColor: "#ffffff", strokeWeight: 2 };
   }
-
   function renderMarkers(bikes) {
     bikes.forEach(b => {
       if (!markers[b.id]) {
-        const m = new google.maps.Marker({
-          position: { lat: b.lat, lng: b.lng },
-          map,
-          title: `${b.vehicle_type.toUpperCase()} • ${b.id}`,
-          icon: markerIcon(b.is_available),
-        });
+        const m = new google.maps.Marker({ position: { lat: b.lat, lng: b.lng }, map, title: `${b.vehicle_type.toUpperCase()} • ${b.id}`, icon: markerIcon(b.is_available) });
         m.addListener("click", () => openBikeInfo(b.id, m));
         markers[b.id] = m;
       } else {
@@ -221,11 +382,8 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
         m.setTitle(`${b.vehicle_type.toUpperCase()} • ${b.id}`);
       }
     });
-    Object.keys(markers).forEach(id => {
-      if (!bikesIndex[id]) { markers[id].setMap(null); delete markers[id]; }
-    });
+    Object.keys(markers).forEach(id => { if (!bikesIndex[id]) { markers[id].setMap(null); delete markers[id]; } });
   }
-
   function fitToBikes() {
     const ids = Object.keys(markers);
     if (!ids.length) return;
@@ -234,118 +392,118 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
     map.fitBounds(bounds, 64);
   }
 
-  // InfoWindow
-  function openBikeInfo(bikeId, marker) {
-    const b = bikesIndex[bikeId];
-    if (!b) return;
-
-    const isMine = !b.is_available && b.rented_by_user_id === currentUserId;
-    const availability = b.is_available
-      ? `<span class="pill ok">Available</span>`
-      : `<span class="pill bad">Rented</span>`;
-
+  // ------- InfoWindow -------
+  function buildInfoWindowHtml(b) {
+    const availability = b.is_available ? `<span class="pill ok">Available</span>` : `<span class="pill bad">Rented</span>`;
     const price = (b.per_minute_cents / 100).toFixed(2);
+    const negBlock = balanceCents < 0;
 
-    let btnHtml = "";
+    let actions = "";
     if (b.is_available) {
-      if (rentalId) {
-        btnHtml = `<span class="muted">You already have an active rental.</span>`;
-      } else {
-        btnHtml = `<button id="rentBtn" data-bike="${b.id}">Rent Now (${b.vehicle_type}, $${price}/min)</button>`;
-      }
-    } else if (isMine) {
-      if (!rentalId && b.current_rental_id) {
-        rentalId = b.current_rental_id;
-        window.__activeBikeId = b.id;
-        document.getElementById("endBtn").disabled = false;
-        startRentalPolling();
-      }
-      btnHtml = `<button id="endHereBtn" data-bike="${b.id}">End Ride Here</button>`;
+      if (!currentUserId) actions = `<span class="muted">Sign in to rent.</span>`;
+      else if (negBlock) actions = `<span class="muted">Your balance is negative. Open Account to deposit.</span>`;
+      else if (rentalId) actions = `<span class="muted">You already have an active rental.</span>`;
+      else actions = `<button id="rentBtn-${b.id}" class="primary">Rent Now</button>`;
     } else {
-      btnHtml = `<span class="muted">Rented by ${b.rented_by_user_id}</span>`;
+      const isMine = b.rented_by_user_id === currentUserId;
+      actions = isMine ? `<button id="endHereBtn-${b.id}">End Ride Here</button>` : `<span class="muted">Rented by ${b.rented_by_user_id}</span>`;
     }
 
-    const html = `
-      <div style="min-width:260px">
-        <div style="font-weight:600; margin-bottom:4px;">
-          ${b.vehicle_type.toUpperCase()} • ${b.id}
-        </div>
-        <div style="margin-bottom:6px;">${availability}</div>
-        <div style="font-size:12px; color:#666; margin-bottom:6px;">
-          $${price}/min ${b.unlock_cents ? ("+ $" + (b.unlock_cents/100).toFixed(2) + " unlock") : ""}
-        </div>
-        <div style="font-size:12px; color:#666; margin-bottom:8px;">
-          Lat ${b.lat.toFixed(5)}, Lng ${b.lng.toFixed(5)}
-        </div>
-        <div class="row">${btnHtml}</div>
+    return `
+      <div id="win-${b.id}" style="min-width:260px">
+        <div style="font-weight:600; margin-bottom:4px;">${b.vehicle_type.toUpperCase()} • ${b.id}</div>
+        <div id="availability-${b.id}" style="margin-bottom:6px;">${availability}</div>
+        <div style="font-size:12px; color:#666; margin-bottom:6px;">$${price}/min ${b.unlock_cents ? ("+ $" + (b.unlock_cents/100).toFixed(2) + " unlock") : ""}</div>
+        <div style="font-size:12px; color:#666; margin-bottom:8px;">Lat ${b.lat.toFixed(5)}, Lng ${b.lng.toFixed(5)}</div>
+        <div class="row" id="actions-${b.id}">${actions}</div>
       </div>
     `;
-    (infoWindow || new google.maps.InfoWindow()).setContent(html);
+  }
+  function renderInfoWindow(bikeId, marker) {
+    const b = bikesIndex[bikeId]; if (!b) return;
+    lastInfoBikeId = bikeId; lastInfoMarker = marker;
+    infoWindow.setContent(buildInfoWindowHtml(b));
     infoWindow.open({ anchor: marker, map });
 
     google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-      const rentBtn = document.getElementById("rentBtn");
-      if (rentBtn) rentBtn.onclick = () => startRental(b.id);
-      const endHereBtn = document.getElementById("endHereBtn");
-      if (endHereBtn) endHereBtn.onclick = () => endRideAt(b.id);
+      const rentBtn = document.getElementById(`rentBtn-${bikeId}`);
+      if (rentBtn) {
+        rentBtn.onclick = async () => {
+          rentBtn.disabled = true; rentBtn.textContent = "Starting...";
+          try {
+            const res = await fetch("/rentals/start", {
+              method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
+              body: JSON.stringify({ bike_id: bikeId })
+            });
+            if (res.status === 402) { // negative balance
+              const txt = await res.text();
+              openAccount(); accountMsg.textContent = txt || "Balance is negative. Deposit to rent.";
+              await refreshBalance(); return;
+            }
+            if (!res.ok) { const t = await res.text(); throw new Error(t || `HTTP ${res.status}`); }
+            const data = await res.json();
+            rentalId = data.id; window.__activeBikeId = data.bike_id; document.getElementById("endBtn").disabled = false;
+            if (bikesIndex[bikeId]) { bikesIndex[bikeId].is_available = false; bikesIndex[bikeId].rented_by_user_id = currentUserId; }
+            if (markers[bikeId]) markers[bikeId].setIcon(markerIcon(false));
+            updateRentalUI(data);
+          } catch (e) { alert(e.message || "Failed to start rental"); }
+          finally { renderInfoWindow(bikeId, marker); setTimeout(loadBikes, 250); startRentalPolling(); }
+        };
+      }
+      const endHereBtn = document.getElementById(`endHereBtn-${bikeId}`);
+      if (endHereBtn) {
+        endHereBtn.onclick = async () => {
+          endHereBtn.disabled = true; endHereBtn.textContent = "Ending...";
+          try {
+            const pos = marker.getPosition();
+            const data = await endRide(pos.lat(), pos.lng());
+            if (bikesIndex[bikeId]) { bikesIndex[bikeId].is_available = true; bikesIndex[bikeId].rented_by_user_id = null; }
+            if (markers[bikeId]) markers[bikeId].setIcon(markerIcon(true));
+            if (data && typeof data.user_balance_cents === "number") setBalance(data.user_balance_cents); else refreshBalance();
+          } catch (e) { alert(e.message || "Failed to end ride"); }
+          finally { renderInfoWindow(bikeId, marker); setTimeout(loadBikes, 250); }
+        };
+      }
     });
   }
+  function openBikeInfo(bikeId, marker) { renderInfoWindow(bikeId, marker); }
 
-  // Rental actions
-  async function startRental(bikeId) {
-    if (!currentUserId) return showErr("Choose a user first.");
-    try {
-      const data = await fetchJSON("/rentals/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: currentUserId, bike_id: bikeId })
-      });
-      rentalId = data.id;
-      window.__activeBikeId = data.bike_id;
-      document.getElementById("endBtn").disabled = false;
-      updateRentalUI(data);
-      await loadBikes();
-    } catch (e) { showErr(e.message); }
-  }
-
+  // ------- Rental actions -------
   async function endRideAt(bikeId) {
-    const m = markers[bikeId];
-    if (!m || !rentalId) return;
+    const m = markers[bikeId]; if (!m || !rentalId) return;
     const pos = m.getPosition();
-    await endRide(pos.lat(), pos.lng());
+    const data = await endRide(pos.lat(), pos.lng());
+    if (data && typeof data.user_balance_cents === "number") setBalance(data.user_balance_cents); else refreshBalance();
   }
-
   async function endRide(lat, lng) {
-    try {
-      const data = await fetchJSON(`/rentals/${rentalId}/end`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lat, lng })
-      });
-      updateRentalUI(data);
-      document.getElementById("endBtn").disabled = true;
-      rentalId = null;
-      window.__activeBikeId = null;
-      await loadBikes();
-    } catch (e) { showErr(e.message); }
+    const res = await fetch(`/rentals/${rentalId}/end`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
+      body: JSON.stringify({ lat, lng })
+    });
+    if (!res.ok) { const text = await res.text(); throw new Error(text || "Failed to end ride"); }
+    const data = await res.json();
+    updateRentalUI(data); document.getElementById("endBtn").disabled = true;
+    rentalId = null; window.__activeBikeId = null;
+    return data;
   }
 
+  // ------- Status text (no UUID) -------
   function updateRentalUI(s) {
     if (!s || s.ended_at) {
       const text = s
-        ? `Ride ended. Duration ${Math.ceil(s.duration_seconds/60)} min. Cost $${(s.cost_cents/100).toFixed(2)}.`
+        ? `Ride ended. Duration ${Math.ceil(s.duration_seconds/60)} min. Cost ${fmt$(s.cost_cents || 0)}.` +
+          (typeof s.user_balance_cents === "number" ? ` New balance ${fmt$(s.user_balance_cents)}.` : "")
         : "No active rental.";
       document.getElementById("rentalInfo").innerText = text;
       return;
     }
-    const mins = Math.floor(s.duration_seconds / 60);
-    const secs = s.duration_seconds % 60;
-    const est = s.current_cost_estimate_cents != null ? (s.current_cost_estimate_cents/100).toFixed(2) : "—";
+    const mins = Math.floor(s.duration_seconds / 60), secs = s.duration_seconds % 60;
+    const est = s.current_cost_estimate_cents != null ? fmt$(s.current_cost_estimate_cents) : "—";
     document.getElementById("rentalInfo").innerText =
-      `Rental ${s.id} on ${s.bike_id} (${s.vehicle_type}) — ${mins}m ${secs}s — Est. $${est}  ($${(s.per_minute_cents/100).toFixed(2)}/min)`;
+      `Ride on ${s.bike_id} (${s.vehicle_type}) — ${mins}m ${secs}s — Est. ${est} (${fmt$(s.per_minute_cents)}/min)`;
   }
 
-  // Load Google Maps
+  // ------- Load Google Maps -------
   (function loadGoogleMaps() {
     const key = (window.CONFIG && window.CONFIG.GOOGLE_MAPS_KEY) || "";
     if (!key) { showErr("Google Maps API key missing. Set GOOGLE_MAPS_KEY or provide config.js."); return; }
@@ -356,7 +514,7 @@ Place next to app.py. Requires config.js (or the /config.js route via env var). 
     document.head.appendChild(s);
   })();
 
-  // Basic error listeners
+  // Global error hooks
   window.addEventListener('error', e => showErr("JS error: " + e.message));
   window.addEventListener('unhandledrejection', e => showErr("Promise error: " + (e.reason && e.reason.message || e.reason)));
 </script>

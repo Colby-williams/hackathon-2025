@@ -3,7 +3,8 @@
     --secondary-color: #87cefa;
     --accent1-color: #f0f8ff;
     --accent2-color: #4682b4;
-    --dark-text: #000;
+    --white-text: white;
+    --dark-text: black;
 }
 
 /* Resets defaults styling */
@@ -27,6 +28,7 @@ header {
     justify-content: flex-start;
     align-items: center;
     padding-top: 30px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
 
 .image-container img {
@@ -51,15 +53,30 @@ nav a {
 
 nav a:hover {
     text-decoration: underline;
-    color: var(--secondary-color);
+    color: var(--accent1-color);
+}
+
+/* menu button with help of w3schools */
+.container {
+    cursor: pointer;
+
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 6px 0;
+    transition: 0.4s;
 }
 
 /* Main content */
 .title {
     font-size: 2rem;
-    color: var(--dark-text);
-    display: flex;
-    justify-content: center;
+    color: var(--accent1-color);
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 2px;
 }
 
 main {
@@ -73,8 +90,8 @@ main {
 
 /* Footer content */
 footer {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--white-text);
     text-align: center;
     margin-left: 200px;
     padding: 20px;
@@ -86,13 +103,13 @@ footer p {
 }
 
 footer a {
-    color: var(--primary-color);
+    color: var(--accent1-color);
     text-decoration: none;
     padding: 5px;
     line-height: 1.6;
 }
 
 footer a:hover {
-    color: var(--accent2-color);
+    color: var(--secondary-color);
     text-decoration: underline;
 }

@@ -9,6 +9,9 @@ Campus micromobility demo built by a team of beginning sophomores. Front end use
 > Security note: This README includes a Google Maps key for hackathon convenience: `AIzaSyDVLbb9n_X7BXgErxe1QB4m9Dyv8vodwm8`.
 > If this repo is public, rotate/restrict the key immediately after the event.
 ## Features
+
+> AI assistance disclosure: Most JavaScript was generated with OpenAI GPT‑5; the team validated and refined the code.
+
 - Simple sign‑in (demo users) with HTTP‑only session cookie.
 - Live map with available vehicles: bike, snow‑bike, e‑bike, scooter.
 - Start/end a ride; cost calculated per minute (rounded up).
@@ -20,6 +23,16 @@ Demo users you can try on the Map page:
 - u123 / pass123 (starts with $20.00)
 - u124 / pass124 (starts with $10.00)
 - u125 / pass125 (starts with $5.00)
+
+## How we built it
+- Step 1 — Planning and wireframes: We started by discussing the core flow (sign in → find a vehicle → start ride → end ride → pay) and sketching wireframes for the Home, About, Services/Products, Contact, and Map pages.
+- Step 2 — Split the work and build in parallel:
+  - Colby Williams — site‑wide styling (styles.css), layout, responsive tweaks, and shared components (nav, footer).
+  - Emma Kohler — content and styling for the About, Services/Products, and Contact pages; copywriting and small accessibility fixes.
+  - Tanner Brown — Google Cloud setup (project + Maps JavaScript API), API key management, and the embedded map in map.html (markers and basic UI).
+  - John Zhou — rental domain logic and state model: user accounts and sign‑in, wallet/deposit flow, per‑minute pricing, battery consumption for e‑bikes/scooters with “Recharge,” and negative‑balance blocking.
+- Step 3 — Integration and testing: We wired the map to the Flask endpoints, verified log‑in, rentals, wallet deposits, and ride cost calculations, then fixed small UI/logic mismatches.
+- Step 4 — AI‑assisted implementation and polish: With OpenAI GPT‑5, we generated most of the JavaScript (map markers, InfoWindows, UI event handlers/modals, fetch calls to the Flask API, and basic error handling). We then reviewed, edited, and tested the code; GPT‑5 also helped prettify CSS/markup and draft this README.
 
 ## Project structure (key files)
 - app.py — Flask server and API (also serves index.html, map.html, and /config.js).
@@ -163,11 +176,25 @@ In this demo everything is in memory. Restarting the server clears rides, resets
 - “Battery empty. Please recharge first.”: recharge the bike in the InfoWindow or via POST /bikes/{id}/recharge.
 - “Your balance is negative.” (HTTP 402): deposit funds in the Account modal or POST /wallet/deposit.
 
+## Acknowledgements
+- Built with help from OpenAI GPT-5 (AI pair-programming and README drafting), October 2025.
+- Most of the JavaScript for the map UI and API calls was generated with OpenAI GPT‑5 and then reviewed/modified by the team.
+
+
 ## Team
 - Emma Kohler
 - John Zhou
 - Colby Williams
 - Tanner Brown
+
+## Ethics & Academic Honesty
+- AI assistance: Most of the JavaScript (map UI and API calls) and some copy were generated with OpenAI GPT‑5. The team reviewed, edited, and tested all AI‑assisted code, and made final design/implementation decisions.
+- Attribution: We disclose AI use in this README (and can tag AI‑assisted commits in messages if requested by judges).
+- Originality: Code and assets are either written by the team, generated for us by GPT‑5, or otherwise appropriately licensed. We avoided copying from closed‑source or non‑permissive sources.
+- Data & privacy: This demo uses only mock users and in‑memory state. Please don’t enter personal data.
+- Security & keys: A Google Maps API key appears in this README for hackathon convenience. Restrict it by referrer/IP and rotate it after the event. Don’t commit secrets to public repos; prefer environment variables.
+- Licensing & terms: Google Maps JavaScript API is used under Google’s terms; usage may incur charges if quotas are exceeded.
+- Academic honesty: If your course or hackathon requires disclosure of AI‑generated work, this section is intended to satisfy that requirement.
 
 ## Notes for judges
 - This is a hackathon demo intended for learning. It uses an in‑memory store, no HTTPS termination, and no real payment provider. Don’t use it in production without proper auth, storage, and security hardening.

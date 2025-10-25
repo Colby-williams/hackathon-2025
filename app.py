@@ -1,15 +1,19 @@
 # app.py
 # Micromobility rental backend (Flask, in-memory) with:
-# - Vehicle types: bike, snow-bike, e-bike, scooter
-# - Per-type pricing (per-minute + optional unlock fee)
-# - Endpoints: /bikes, /rentals/start, /rentals/{id}, /rentals/{id}/end, /users/{user}/active_rental
-# - /config.js served from env GOOGLE_MAPS_KEY for your index.html to load Google Maps
+# - Username/password login via HTTP-only session cookie
+# - Vehicle types: bike, snow-bike, e-bike, scooter (per-minute prices)
+# - User wallet/balance: /wallet (GET), /wallet/deposit (POST)
+# - Block starting a rental if the user's balance is negative (HTTP 402)
+# - Ride cost is deducted from balance when ending a ride
+# - API: /login, /logout, /me, /wallet, /wallet/deposit, /bikes, /rentals/start, /rentals/{id}, /rentals/{id}/end
+# - Static helpers: serves index.html at "/", map.html at "/map", and /config.js exposes GOOGLE_MAPS_KEY
 #
 # Run:
 #   pip install "flask==3.0.3"
 #   export GOOGLE_MAPS_KEY="YOUR_REAL_KEY"    # or PowerShell: $env:GOOGLE_MAPS_KEY="YOUR_REAL_KEY"
 #   python app.py
-# Place index.html next to this file. Include <script src="config.js"></script> in your page.
+#
+# Note: In-memory store for hackathons. Any server restart clears rentals and balances.
 
 from __future__ import annotations
 
@@ -21,12 +25,32 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Dict, Optional, Literal
 
-from flask import Flask, jsonify, request, send_from_directory, abort
+from flask import Flask, jsonify, request, send_from_directory, abort, make_response
 
 app = Flask(__name__, static_url_path="", static_folder=".")
 
-# ---------------- Models ----------------
+# -------- Demo users (plaintext + balances; demo-only) --------
+USERS: Dict[str, dict] = {
+    "u123": {"password": "pass123", "name": "Alice",   "balance_cents": 2000},  # $20.00
+    "u124": {"password": "pass124", "name": "Bob",     "balance_cents": 1000},  # $10.00
+    "u125": {"password": "pass125", "name": "Charlie", "balance_cents":  500},  # $5.00
+}
+SESSIONS: Dict[str, str] = {}  # sid -> user_id
+BLOCK_NEGATIVE_BALANCE_ON_START = True  # prevent renting when balance < 0
 
+def get_current_user_id() -> Optional[str]:
+    sid = request.cookies.get("sid")
+    if not sid:
+        return None
+    return SESSIONS.get(sid)
+
+def require_login() -> str:
+    uid = get_current_user_id()
+    if not uid:
+        abort(401, description="Not logged in")
+    return uid
+
+# -------- Models --------
 VehicleType = Literal["bike", "snow-bike", "e-bike", "scooter"]
 
 @dataclass
@@ -47,32 +71,34 @@ class Rental:
     ended_at: Optional[datetime] = None
     cost_cents: Optional[int] = None
 
-# ---------------- Pricing (per vehicle type) ----------------
-# Requested: bikes $0.50/min; e-bikes & scooters $1.00/min. Snow-bikes -> $0.50/min.
+# -------- Pricing --------
 PRICING = {
-    "bike":      {"unlock_cents": 0, "per_minute_cents": 50},
-    "snow-bike": {"unlock_cents": 0, "per_minute_cents": 50},
-    "e-bike":    {"unlock_cents": 0, "per_minute_cents": 100},
-    "scooter":   {"unlock_cents": 0, "per_minute_cents": 100},
+    "bike":      {"unlock_cents": 0, "per_minute_cents": 50},   # $0.50/min
+    "snow-bike": {"unlock_cents": 0, "per_minute_cents": 50},   # $0.50/min
+    "e-bike":    {"unlock_cents": 0, "per_minute_cents": 100},  # $1.00/min
+    "scooter":   {"unlock_cents": 0, "per_minute_cents": 100},  # $1.00/min
 }
+MAX_RIDE_MINUTES = 240  # optional cap
 
-MAX_RIDE_MINUTES = 240  # 4 hours cap (optional)
-
-# ---------------- Seed data ----------------
-
+# -------- Seed bikes --------
 bikes: Dict[str, Bike] = {
-    "b1": Bike(id="b1", vehicle_type="bike",      lat=43.81488858304542, lng=-111.79005227761711),
-    "b2": Bike(id="b2", vehicle_type="e-bike",    lat=43.8201,           lng=-111.7859),
-    "b3": Bike(id="b3", vehicle_type="scooter",   lat=43.825,            lng=-111.789),
-    "b4": Bike(id="b4", vehicle_type="snow-bike", lat=43.8185,           lng=-111.783),
-    "b5": Bike(id="b5", vehicle_type="bike",      lat=43.8212,           lng=-111.7871),
-    "b6": Bike(id="b6", vehicle_type="e-bike",    lat=43.8239,           lng=-111.7842),
+    "b1":  Bike(id="b1",  vehicle_type="bike",      lat=43.81488858304542, lng=-111.79005227761711),
+    "b2":  Bike(id="b2",  vehicle_type="e-bike",    lat=43.8201,           lng=-111.7859),
+    "b3":  Bike(id="b3",  vehicle_type="scooter",   lat=43.825,            lng=-111.789),
+    "b4":  Bike(id="b4",  vehicle_type="snow-bike", lat=43.8185,           lng=-111.783),
+    "b5":  Bike(id="b5",  vehicle_type="bike",      lat=43.8212,           lng=-111.7871),
+    "b6":  Bike(id="b6",  vehicle_type="e-bike",    lat=43.8239,           lng=-111.7842),
+    "b7":  Bike(id="b7",  vehicle_type="scooter",   lat=43.8197,           lng=-111.7863),
+    "b8":  Bike(id="b8",  vehicle_type="bike",      lat=43.8225,           lng=-111.7888),
+    "b9":  Bike(id="b9",  vehicle_type="snow-bike", lat=43.8176,           lng=-111.7899),
+    "b10": Bike(id="b10", vehicle_type="e-bike",    lat=43.8246,           lng=-111.7827),
+    "b11": Bike(id="b11", vehicle_type="bike",      lat=43.8208,           lng=-111.7909),
+    "b12": Bike(id="b12", vehicle_type="scooter",   lat=43.8231,           lng=-111.7879),
 }
 rentals: Dict[str, Rental] = {}
 bike_locks: Dict[str, threading.Lock] = {bid: threading.Lock() for bid in bikes}
 
-# ---------------- Helpers ----------------
-
+# -------- Helpers --------
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -87,15 +113,15 @@ def compute_cost_cents(vehicle_type: str, start: datetime, end: datetime) -> int
     minutes = max(1, (elapsed_seconds + 59) // 60)  # round up, min 1 minute
     return int(p["unlock_cents"] + minutes * p["per_minute_cents"])
 
-def rental_to_dict(r: Rental) -> dict:
+def rental_to_dict(r: Rental, include_balance: bool = False) -> dict:
     b = bikes.get(r.bike_id)
     vtype = b.vehicle_type if b else "bike"
     p = PRICING.get(vtype, {"unlock_cents": 0, "per_minute_cents": 50})
     end = r.ended_at or utcnow()
     duration_seconds = max(0, int((end - r.started_at).total_seconds()))
     current_cost_estimate_cents = compute_cost_cents(vtype, r.started_at, utcnow()) if r.ended_at is None else r.cost_cents
-    return {
-        "id": r.id,
+    out = {
+        "id": r.id,  # frontend should not display this publicly
         "user_id": r.user_id,
         "bike_id": r.bike_id,
         "vehicle_type": vtype,
@@ -107,6 +133,10 @@ def rental_to_dict(r: Rental) -> dict:
         "per_minute_cents": p["per_minute_cents"],
         "unlock_cents": p["unlock_cents"],
     }
+    if include_balance:
+        uid = r.user_id
+        out["user_balance_cents"] = USERS.get(uid, {}).get("balance_cents", 0)
+    return out
 
 def active_rental_for_bike(bike_id: str) -> Optional[Rental]:
     for r in rentals.values():
@@ -120,28 +150,20 @@ def active_rental_for_user(user_id: str) -> Optional[Rental]:
             return r
     return None
 
-# ---------------- Routes ----------------
-
+# -------- Static helpers --------
 @app.route("/")
-def index():
+def root():
     try:
         return send_from_directory(".", "index.html")
     except Exception:
-        html = """
-        <!doctype html><meta charset="utf-8">
-        <title>Micromobility Backend</title>
-        <div style="font-family:system-ui,sans-serif;margin:24px;max-width:720px">
-          <h2>Micromobility Backend is running</h2>
-          <p>Place <code>index.html</code> next to <code>app.py</code> to serve your map UI.</p>
-          <p>Your Google Maps key is served at <code>/config.js</code>
-             (set env <code>GOOGLE_MAPS_KEY</code>).</p>
-          <ul>
-            <li><a href="/bikes">/bikes</a></li>
-            <li><a href="/health">/health</a></li>
-          </ul>
-        </div>
-        """
-        return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+        return "<h3>Place index.html next to app.py</h3>", 200, {"Content-Type": "text/html"}
+
+@app.route("/map")
+def map_page():
+    try:
+        return send_from_directory(".", "map.html")
+    except Exception:
+        return "<h3>Place map.html next to app.py</h3>", 200, {"Content-Type": "text/html"}
 
 @app.get("/config.js")
 def serve_config_js():
@@ -153,6 +175,78 @@ def serve_config_js():
 def health():
     return jsonify({"ok": True, "time": iso(utcnow())})
 
+# -------- Auth --------
+@app.post("/login")
+def login():
+    body = request.get_json(force=True, silent=True) or {}
+    username = (body.get("username") or "").strip()
+    password = (body.get("password") or "").strip()
+    user = USERS.get(username)
+    if not user or user["password"] != password:
+        abort(401, description="Invalid username or password")
+    sid = str(uuid.uuid4())
+    SESSIONS[sid] = username
+    resp = make_response(jsonify({
+        "ok": True,
+        "user_id": username,
+        "name": user.get("name"),
+        "balance_cents": user.get("balance_cents", 0),
+    }))
+    resp.set_cookie("sid", sid, httponly=True, samesite="Lax")
+    return resp
+
+@app.post("/logout")
+def logout():
+    sid = request.cookies.get("sid")
+    if sid and sid in SESSIONS:
+        del SESSIONS[sid]
+    resp = make_response(jsonify({"ok": True}))
+    resp.delete_cookie("sid")
+    return resp
+
+@app.get("/me")
+def me():
+    uid = get_current_user_id()
+    if not uid:
+        return jsonify({"authenticated": False})
+    user = USERS.get(uid, {})
+    return jsonify({
+        "authenticated": True,
+        "user_id": uid,
+        "name": user.get("name"),
+        "balance_cents": user.get("balance_cents", 0),
+    })
+
+# -------- Wallet --------
+@app.get("/wallet")
+def get_wallet():
+    uid = require_login()
+    bal = USERS.get(uid, {}).get("balance_cents", 0)
+    return jsonify({"user_id": uid, "balance_cents": bal})
+
+@app.post("/wallet/deposit")
+def wallet_deposit():
+    uid = require_login()
+    body = request.get_json(force=True, silent=True) or {}
+    amt_cents = body.get("amount_cents")
+    amt_dollars = body.get("amount_dollars")
+    if amt_cents is None and amt_dollars is None:
+        abort(400, description="Provide amount_cents or amount_dollars")
+    if amt_cents is None:
+        try:
+            amt_cents = int(round(float(amt_dollars) * 100))
+        except Exception:
+            abort(400, description="Invalid amount_dollars")
+    try:
+        amt_cents = int(amt_cents)
+    except Exception:
+        abort(400, description="Invalid amount_cents")
+    if amt_cents <= 0:
+        abort(400, description="Deposit must be > 0")
+    USERS[uid]["balance_cents"] = USERS[uid].get("balance_cents", 0) + amt_cents
+    return jsonify({"ok": True, "user_id": uid, "balance_cents": USERS[uid]["balance_cents"]})
+
+# -------- Bikes --------
 @app.get("/bikes")
 def list_bikes():
     out = []
@@ -173,27 +267,23 @@ def list_bikes():
         })
     return jsonify(out)
 
-@app.get("/users/<user_id>/active_rental")
-def get_user_active_rental(user_id: str):
-    r = active_rental_for_user(user_id)
-    if not r:
-        return jsonify({"active": False})
-    return jsonify({"active": True, "rental": rental_to_dict(r)})
-
+# -------- Rentals --------
 @app.post("/rentals/start")
 def start_rental():
-    # Body: { "user_id": "u123", "bike_id": "b1" }
+    user_id = require_login()
     body = request.get_json(force=True, silent=True) or {}
-    user_id = body.get("user_id")
     bike_id = body.get("bike_id")
-    if not user_id or not bike_id:
-        abort(400, description="user_id and bike_id are required")
+    if not bike_id:
+        abort(400, description="bike_id is required")
+
+    if BLOCK_NEGATIVE_BALANCE_ON_START:
+        bal = USERS.get(user_id, {}).get("balance_cents", 0)
+        if bal < 0:
+            abort(402, description="Your balance is negative. Please deposit funds to rent.")
 
     bike = bikes.get(bike_id)
     if not bike:
         abort(404, description="Bike not found")
-
-    # One active rental per user
     if active_rental_for_user(user_id):
         abort(409, description="User already has an active rental")
 
@@ -221,7 +311,6 @@ def get_rental(rental_id: str):
     if not rental:
         abort(404, description="Rental not found")
 
-    # Optional auto-end if beyond cap
     if rental.ended_at is None:
         elapsed_min = (utcnow() - rental.started_at).total_seconds() / 60
         if elapsed_min > MAX_RIDE_MINUTES:
@@ -231,7 +320,7 @@ def get_rental(rental_id: str):
 
 @app.post("/rentals/<rental_id>/end")
 def end_rental(rental_id: str):
-    # Body: { "lat": 43.82, "lng": -111.78 }
+    user_id = require_login()
     body = request.get_json(force=True, silent=True) or {}
     lat = body.get("lat")
     lng = body.get("lng")
@@ -239,10 +328,17 @@ def end_rental(rental_id: str):
     rental = rentals.get(rental_id)
     if not rental:
         abort(404, description="Rental not found")
+    if rental.user_id != user_id:
+        abort(403, description="Cannot end someone else's rental")
     if rental.ended_at is not None:
-        return jsonify(rental_to_dict(rental))  # idempotent
+        return jsonify(rental_to_dict(rental, include_balance=True))
 
     out = _end_rental_internal(rental, lat=lat, lng=lng)
+
+    # Deduct cost from user's balance
+    cost = rental.cost_cents or 0
+    USERS[user_id]["balance_cents"] = USERS[user_id].get("balance_cents", 0) - cost
+    out["user_balance_cents"] = USERS[user_id]["balance_cents"]
     return jsonify(out)
 
 def _end_rental_internal(rental: Rental, lat: Optional[float], lng: Optional[float]) -> dict:
@@ -265,12 +361,17 @@ def _end_rental_internal(rental: Rental, lat: Optional[float], lng: Optional[flo
     bike.last_seen_at = utcnow()
     return rental_to_dict(rental)
 
+# -------- Debug --------
 @app.post("/debug/reset")
 def reset_state():
     rentals.clear()
     for b in bikes.values():
         b.is_available = True
         b.last_seen_at = utcnow()
+    # Reset balances to starters
+    for uid, u in USERS.items():
+        u["balance_cents"] = 2000 if uid == "u123" else 1000 if uid == "u124" else 500
+    SESSIONS.clear()
     return jsonify({"ok": True, "message": "State reset"}), 200
 
 if __name__ == "__main__":

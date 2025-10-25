@@ -31,7 +31,7 @@ header {
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
 
-header.collapesed {
+header.collapsed {
     width: 60px;
 }
 
@@ -98,7 +98,9 @@ main {
     font-family: Arial, sans-serif;
 }
 
-
+header.collapsed + main {
+    margin-left: 60px;
+}
 
 /* Footer content */
 footer {
@@ -123,4 +125,8 @@ footer a {
 footer a:hover {
     color: var(--secondary-color);
     text-decoration: underline;
+}
+
+header.collapsed ~ footer {
+    margin-left: 60px;
 }

@@ -20,20 +20,22 @@ header {
     height: 100vh;
     width: 200px;
     position: fixed;
-    z-index: 1;
+    z-index: 10;
     top: 0;
     left: 0;
-    /* display: flex;
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: center; */
+    overflow: hidden;
+    align-items: center;
     padding-top: 30px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
 
-.logo {
-    color: var(--accent1-color);
-    padding: 15px;
-    margin-bottom: 20px;
+.image-container img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 50%;
 }
 
 nav {
@@ -54,12 +56,46 @@ nav a:hover {
     color: var(--secondary-color);
 }
 
+header.collapesed {
+    width: 60px;
+}
+
+/* logo */
+.image-container img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 50%;
+}
+
+header.collapsed .image-container img {
+    width: 40px;
+    opacity: 0.5;
+}
+
+
+
+/* menu button with help of w3schools */
+.container {
+    cursor: pointer;
+
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
 /* Main content */
 .title {
     font-size: 2rem;
-    color: var(--dark-text);
-    display: flex;
-    justify-content: center;
+    color: var(--accent1-color);
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 2px;
 }
 
 main {
@@ -70,6 +106,54 @@ main {
     color: var(--dark-text);
     font-family: Arial, sans-serif;
 }
+
+/* Footer content */
+footer {
+    background-color: var(--primary-color);
+    color: var(--white-text);
+    text-align: center;
+    margin-left: 200px;
+    padding: 20px;
+}
+
+footer p {
+    padding: 5px;
+    line-height: 1.6;
+}
+
+footer a {
+    color: var(--accent1-color);
+    text-decoration: none;
+    padding: 5px;
+}
+
+footer a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+/* Product and pricing page */
+.product { 
+    text-align: center;
+
+}
+.price-box {
+    width: 1000px;
+   display: flex;
+   border: var(--primary-color) solid 8px;
+   border-radius: 5%;
+   margin: 80px auto;
+   flex-flow: column wrap;
+}
+.price-box img {
+max-width: 90%;
+margin: 10px auto;
+border: var(--secondary-color) solid 3px;
+}
+.price-box p, .price-box h2 {
+    text-align: center;
+}
+
+
 
 .price-box{
     margin: 100px;

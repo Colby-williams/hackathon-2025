@@ -1,9 +1,10 @@
 :root {
-    --primary-color: #2e8b57; /* sea green */
-    --secondary-color: #8fbc8f; /* light green */
-    --accent1-color: #f4a460; /* sandy brown */
-    --accent2-color: #ffefd5; /* papaya whip */
-    --dark-text: #2c3e50;
+    --primary-color: #1e90ff;
+    --secondary-color: #87cefa;
+    --accent1-color: #f0f8ff;
+    --accent2-color: #4682b4;
+    --white-text: white;
+    --dark-text: black;
 }
 
 /* Resets defaults styling */
@@ -19,16 +20,22 @@ header {
     height: 100vh;
     width: 200px;
     position: fixed;
-    z-index: 1;
+    z-index: 10;
     top: 0;
     left: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    overflow: hidden;
     align-items: center;
     padding-top: 30px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
 
+header.collapesed {
+    width: 60px;
+}
+
+/* logo */
 .image-container img {
     width: 100px;
     height: auto;
@@ -36,9 +43,14 @@ header {
     border-radius: 50%;
 }
 
+header.collapsed .image-container img {
+    width: 40px;
+    opacity: 0.5;
+}
+
 nav {
     display: flex;
-    flex-flow: column wrap;
+    flex-direction: column;
     width: 100%;
 }
 
@@ -51,15 +63,30 @@ nav a {
 
 nav a:hover {
     text-decoration: underline;
-    color: var(--secondary-color);
+    color: var(--accent1-color);
+}
+
+/* menu button with help of w3schools */
+.container {
+    cursor: pointer;
+
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 6px 0;
+    transition: 0.4s;
 }
 
 /* Main content */
 .title {
     font-size: 2rem;
-    color: var(--dark-text);
-    display: flex;
-    justify-content: center;
+    color: var(--accent1-color);
+    text-align: center;
+    margin-top: 40px;
+    letter-spacing: 2px;
 }
 
 main {
@@ -70,33 +97,29 @@ main {
     color: var(--dark-text);
     font-family: Arial, sans-serif;
 }
+
 /* Product and pricing page */
 .product {
     width: 800px;
     border: var(--primary-color) 1px solid;
+    border-radius: 10px;
     background-color: var(--primary-color);
     margin: 0 auto;
 }
-.product h1 { 
-    text-align: center;
-    font: 8em;
-    color: var(--accent1-color);
-
-}
 .price-box {
     width: 1000px;
-   display: flex;
-   border: var(--primary-color) solid 8px;
-   border-radius: 5%;
-   margin: 80px auto;
-   flex-flow: column wrap;
+    display: flex;
+    border: var(--primary-color) solid 8px;
+    border-radius: 5%;
+    margin: 80px auto;
+    flex-flow: column wrap;
 }
 .price-box img {
-max-width: 80%;
-margin: 10px auto;
-margin-top: 40px;
-border: var(--secondary-color) solid 3px;
-border-radius: 5%;
+    max-width: 80%;
+    margin: 10px auto;
+    margin-top: 40px;
+    border: var(--secondary-color) solid 3px;
+    border-radius: 5%;
 }
 .price-box p, .price-box h2 {
     text-align: center;
@@ -107,8 +130,8 @@ border-radius: 5%;
 
 /* Footer content */
 footer {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--white-text);
     text-align: center;
     margin-left: 200px;
     padding: 20px;
@@ -120,13 +143,13 @@ footer p {
 }
 
 footer a {
-    color: var(--primary-color);
+    color: var(--accent1-color);
     text-decoration: none;
     padding: 5px;
-    line-height: 1.6;
 }
 
 footer a:hover {
-    color: var(--accent2-color);
+    color: var(--secondary-color);
     text-decoration: underline;
 }
+

@@ -26,6 +26,11 @@ header {
     padding-top: 30px;
 }
 
+.logo {
+    color: var(--accent1-color);
+    margin-bottom: 20px;
+}
+
 nav {
     display: flex;
     flex-flow: column wrap;
@@ -35,12 +40,12 @@ nav {
 nav a {
     text-decoration: none;
     color: var(--accent1-color);
-    padding: 50px 25px;
+    padding: 15px 20px;
+    font-weight: 600;
 }
 
 nav a:hover {
     text-decoration: underline;
-<<<<<<< HEAD
     color: var(--secondary-color);
 }
 
@@ -59,19 +64,4 @@ main {
     min-height: 100vh;
     color: var(--dark-text);
     font-family: Arial, sans-serif;
-=======
-}
-
-
-
-
-
-
-
-img{
-    width:300px;
-    height:300px;
-    object-fit: cover;
-    margin: 0 auto;
->>>>>>> 5ef15fcbae73ec0b983e35a16aa9a750e6f9f1cb
 }

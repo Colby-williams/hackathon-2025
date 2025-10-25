@@ -183,11 +183,6 @@ footer a:hover{text-decoration:underline}
 }
 @media (max-width: 640px){ .hero{grid-template-columns:1fr} }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-header.collapsed {
-    width: 60px;
-=======
 /* ========== Cards / Features grid (index + services) ========== */
 .features{
   display:grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap:16px;
@@ -206,24 +201,10 @@ header.collapsed {
 /* Uniform media area for service cards */
 .card__media{
   width:100%; height:180px; border-radius:10px; overflow:hidden; background:#eee; margin-bottom:8px;
->>>>>>> Stashed changes
 }
 .card__img{width:100%; height:100%; object-fit:cover; display:block}
 .card__body{display:flex; flex-direction:column; gap:6px}
 
-<<<<<<< Updated upstream
-/* logo */
-.image-container img {
-    width: 100px;
-    height: auto;
-    margin-bottom: 30px;
-    border-radius: 50%;
-}
-
-header.collapsed .image-container img {
-    width: 40px;
-    opacity: 0.5;
-=======
 @media (max-width: 1024px){ .features{grid-template-columns: repeat(2, minmax(160px, 1fr));} }
 @media (max-width: 640px){ .features{grid-template-columns:1fr} }
 
@@ -293,7 +274,6 @@ header.collapsed .image-container img {
 @media (min-width: 769px){
   .about-list--bleed{ margin-left:-28px; margin-right:-28px }
   .about-list--bleed .about-item{ border-radius:0 }
->>>>>>> Stashed changes
 }
 
 /* ========== Contact page ========== */
@@ -321,82 +301,9 @@ header.collapsed .image-container img {
   width:32px; height:32px; border-radius:50%;
   display:grid; place-items:center; background:#f3f7ff; color:#2f6ad9; border:1px solid #e5edff;
 }
-<<<<<<< Updated upstream
-
-
-/* menu button with help of w3schools */
-.sidebar-toggle {
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0; 
-    margin-top: auto;
-    margin-bottom: 30px; 
-}
-
-.bar1, .bar2, .bar3 {
-    width: 35px;
-    height: 5px;
-    background-color: #333;
-    margin: 6px 0;
-    transition: 0.4s;
-}
-
-/* Main content */
-.title {
-    font-size: 2rem;
-    color: var(--accent1-color);
-    text-align: center;
-    margin-top: 40px;
-    letter-spacing: 2px;
-}
-
-main {
-    margin-left: 200px;
-    padding: 40px;
-    background-color: var(--accent2-color);
-    min-height: 100vh;
-    color: var(--dark-text);
-    font-family: Arial, sans-serif;
-}
-
-header.collapsed + main {
-    margin-left: 80px;
-}
-
-/* Footer content */
-footer {
-    background-color: var(--primary-color);
-    color: var(--white-text);
-    text-align: center;
-    margin-left: 200px;
-    padding: 20px;
-}
-
-footer p {
-    padding: 5px;
-    line-height: 1.6;
-}
-
-footer a {
-    color: var(--accent1-color);
-    text-decoration: none;
-    padding: 5px;
-}
-
-footer a:hover {
-    color: var(--secondary-color);
-    text-decoration: underline;
-}
-
-header.collapsed ~ footer {
-    margin-left: 60px;
-}
-=======
 .ci-label{ font-weight:700; margin-bottom:2px }
 .contact-card .note{
   margin-top:10px; font-size:.92rem; color:var(--muted);
   background:#fff; border:1px dashed var(--border); border-radius:10px; padding:10px;
 }
 @media (max-width: 900px){ .contact-grid{ grid-template-columns:1fr } }
->>>>>>> Stashed changes

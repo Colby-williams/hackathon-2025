@@ -1,53 +1,62 @@
-<<<<<<< HEAD
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleButton = document.querySelector('.sidebar-toggle');
-    const header = document.querySelector('header');
-    if (toggleButton && header) {
-        toggleButton.addEventListener('click', () => {
-            toggleButton.classList.toggle('change');
-            header.classList.toggle('collapsed');
-        });
-    }
-});
-=======
-// function toggleSidebar(button) {
-//     button.classList.toggle("change");
-//     document.querySelector("header").classList.toggle("collapsed");
-// }
-// document.getElementById("myButton").addEventListener("click", function() {
-//     myFunction(this);
-// });
+// Sidebar toggle: desktop collapses; mobile opens drawer
+const MOBILE_Q = "(max-width: 768px)";
+function isMobile(){ return window.matchMedia(MOBILE_Q).matches; }
 
+const desktopToggle = document.querySelector(".menu-toggle.container");
+const fab = document.getElementById("globalMenuBtn");
+const scrim = document.querySelector(".scrim");
 
-/* Sidebar toggle: desktop collapses; mobile opens drawer */
-function isMobile(){ return window.matchMedia("(max-width: 768px)").matches; }
+function setAria(expanded){
+  const v = expanded ? "true" : "false";
+  if (desktopToggle) desktopToggle.setAttribute("aria-expanded", v);
+  if (fab) fab.setAttribute("aria-expanded", v);
+}
 
 function openDrawer(){
   document.body.classList.add("nav-open");
-  const btn = document.querySelector(".menu-toggle.container");
-  btn?.classList.add("change");
-  btn?.setAttribute("aria-expanded","true");
+  setAria(true);
+  // Optional: move focus to first link in the sidebar for a11y
+  const firstLink = document.querySelector(".sidebar nav a");
+  if (isMobile() && firstLink) { try { firstLink.focus(); } catch {} }
 }
 function closeDrawer(){
   document.body.classList.remove("nav-open");
-  const btn = document.querySelector(".menu-toggle.container");
-  btn?.classList.remove("change");
-  btn?.setAttribute("aria-expanded","false");
+  setAria(false);
 }
+
+// Expose for inline handlers and other scripts
+window.openDrawer = openDrawer;
+window.closeDrawer = closeDrawer;
 
 /* w3schools-style handler your file referenced */
 function myFunction(el){
-  const collapsed = document.body.classList.toggle("sidebar-collapsed");
-  el.classList.toggle("change");
-  el.setAttribute("aria-expanded", (!collapsed).toString());
-  // On mobile, treat the sidebar like a drawer instead
+  // On mobile, treat the button as a drawer toggle; do NOT toggle 'sidebar-collapsed'
   if (isMobile()){
     if (document.body.classList.contains("nav-open")) closeDrawer();
     else openDrawer();
+    // keep the visual 'change' state on the button that was clicked
+    if (el) el.classList.toggle("change", document.body.classList.contains("nav-open"));
+    return;
   }
+  // Desktop: collapse/expand sidebar
+  const collapsed = document.body.classList.toggle("sidebar-collapsed");
+  if (el){
+    el.classList.toggle("change", collapsed);
+    el.setAttribute("aria-expanded", (!collapsed).toString());
+  }
+  // Optional: remember preference
+  try { localStorage.setItem("sidebarCollapsed", collapsed ? "1" : "0"); } catch {}
 }
 window.myFunction = myFunction;
-window.closeDrawer = closeDrawer;
+
+/* Close with scrim click and Escape */
+if (scrim) scrim.addEventListener("click", closeDrawer);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.body.classList.contains("nav-open")) {
+    e.preventDefault();
+    closeDrawer();
+  }
+});
 
 /* Optional: show demo creds helper */
 window.addEventListener("DOMContentLoaded", () => {
@@ -55,20 +64,34 @@ window.addEventListener("DOMContentLoaded", () => {
   const note = document.getElementById("demoNote");
   if (demoBtn){
     demoBtn.addEventListener("click", () => {
-      note.hidden = !note.hidden;
-      demoBtn.textContent = note.hidden ? "Demo accounts" : "Hide demo accounts";
+      const hidden = note?.hidden ?? true;
+      if (note) note.hidden = !hidden;
+      demoBtn.textContent = hidden ? "Hide demo accounts" : "Demo accounts";
     });
   }
 
   // Start collapsed on smaller desktops for more canvas space
   if (window.innerWidth < 1100 && !isMobile()){
     document.body.classList.add("sidebar-collapsed");
-    const btn = document.querySelector(".menu-toggle.container");
-    btn?.setAttribute("aria-expanded","false");
+    setAria(false);
+  } else if (isMobile()){
+    // Ensure 'sidebar-collapsed' doesn't linger on mobile
+    document.body.classList.remove("sidebar-collapsed");
   }
 });
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
->>>>>>> 767d0288e2f9f5710c4bed93bcb29c3c10b682e0
-=======
->>>>>>> Stashed changes
+
+/* Keep states sane on resize */
+let _rsz;
+window.addEventListener("resize", () => {
+  clearTimeout(_rsz);
+  _rsz = setTimeout(() => {
+    if (isMobile()){
+      // Drawer mode: no desktop collapse state
+      document.body.classList.remove("sidebar-collapsed");
+      setAria(false);
+    } else {
+      // Ensure drawer is closed on desktop
+      closeDrawer();
+    }
+  }, 120);
+});

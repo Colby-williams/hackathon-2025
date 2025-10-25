@@ -22,17 +22,18 @@ header {
     z-index: 1;
     top: 0;
     left: 0;
-    /* display: flex;
+    display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center; */
+    align-items: center;
     padding-top: 30px;
 }
 
-.logo {
-    color: var(--accent1-color);
-    padding: 15px;
-    margin-bottom: 20px;
+.image-container img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 30px;
+    border-radius: 50%;
 }
 
 nav {

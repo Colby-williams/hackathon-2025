@@ -70,3 +70,9 @@ main {
     color: var(--dark-text);
     font-family: Arial, sans-serif;
 }
+
+/* Footer content */
+footer {
+    background-color: var(--primary-color);
+    color: var(--accent1-color);
+}

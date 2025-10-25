@@ -6,7 +6,6 @@
     --dark-text: #2c3e50;
 }
 
-
 /* Resets defaults styling */
 * {
     margin: 0;
@@ -17,7 +16,7 @@
 /* Header styles */
 
 .title {
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--dark-text);
     display: flex;
     justify-content: center;

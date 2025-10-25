@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>E‑Bike Rentals</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
   <script src="script.js" defer></script>
 </head>
 <body id="top" class="sidebar-expanded">
+  <!-- Floating mobile menu button -->
+  <button class="menu-fab" id="globalMenuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
   <!-- Sidebar / Drawer -->
-  <header class="sidebar" role="navigation" aria-label="Main">
+  <header id="sidebar" class="sidebar" role="navigation" aria-label="Main">
     <div class="image-container">
-      <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo">
+      <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo" />
     </div>
 
     <nav>
@@ -22,6 +27,7 @@
       <a href="contact.html">Contact</a>
     </nav>
 
+    <!-- Desktop toggle (collapses sidebar on wide screens) -->
     <button class="menu-toggle container" aria-label="Toggle menu" aria-expanded="true" onclick="myFunction(this)">
       <span class="bar1"></span>
       <span class="bar2"></span>
@@ -42,6 +48,7 @@
           <a class="btn primary" href="map.html">Open Bike Map</a>
           <button class="btn" id="demoBtn" type="button">Demo accounts</button>
         </div>
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         <nav>
             <a href="index.html">Home</a>
@@ -67,6 +74,8 @@
         <a href="#top">Back to Top</a>
     </footer>
 =======
+=======
+>>>>>>> Stashed changes
         <p class="muted small" id="demoNote" hidden>Demo users: u123/pass123, u124/pass124, u125/pass125</p>
       </div>
       <div class="hero__art" aria-hidden="true">
@@ -76,26 +85,26 @@
     </section>
 
     <section class="features">
-      <div class="card">
+      <article class="card">
         <div class="icon">📍</div>
         <h3>Live map</h3>
         <p>See available vehicles in real time and start a ride with one tap.</p>
-      </div>
-      <div class="card">
+      </article>
+      <article class="card">
         <div class="icon">💳</div>
         <h3>Wallet</h3>
         <p>Deposit funds and track your balance. Negative balances are blocked from renting.</p>
-      </div>
-      <div class="card">
+      </article>
+      <article class="card">
         <div class="icon">⏱️</div>
         <h3>Pay‑as‑you‑go</h3>
-        <p>Bikes and snow‑bikes: $0.50/min. E‑bikes & scooters: $1.00/min.</p>
-      </div>
-      <div class="card">
+        <p>Bikes & Snow‑bikes: $0.50/min. E‑bikes & Scooters: $1.00/min.</p>
+      </article>
+      <article class="card">
         <div class="icon">🛠️</div>
         <h3>Hackathon‑ready</h3>
         <p>Simple Flask backend with in‑memory data. Restart to reset.</p>
-      </div>
+      </article>
     </section>
 
     <section class="panel promo">
@@ -109,6 +118,29 @@
     <p>&copy; 2025 E‑Bike Rentals. All rights reserved.</p>
     <a href="#top">Back to Top</a>
   </footer>
->>>>>>> Stashed changes
+
+  <!-- Minimal wiring for the floating mobile menu button (uses openDrawer/closeDrawer from script.js if available) -->
+  <script>
+    (function(){
+      const btn = document.getElementById('globalMenuBtn');
+      if (!btn) return;
+
+      const open = window.openDrawer || function(){ document.body.classList.add('nav-open'); };
+      const close = window.closeDrawer || function(){ document.body.classList.remove('nav-open'); };
+      window.openDrawer = open; window.closeDrawer = close;
+
+      btn.addEventListener('click', function(){
+        open();
+        btn.setAttribute('aria-expanded','true');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          close();
+          btn.setAttribute('aria-expanded','false');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

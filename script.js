@@ -28,8 +28,6 @@ function openDrawer(){
   btn?.classList.add("change");
   btn?.setAttribute("aria-expanded","true");
 }
-<<<<<<< Updated upstream
-=======
 function closeDrawer(){
   document.body.classList.remove("nav-open");
   const btn = document.querySelector(".menu-toggle.container");
@@ -69,5 +67,8 @@ window.addEventListener("DOMContentLoaded", () => {
     btn?.setAttribute("aria-expanded","false");
   }
 });
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 >>>>>>> 767d0288e2f9f5710c4bed93bcb29c3c10b682e0
+=======
+>>>>>>> Stashed changes

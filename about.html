@@ -1,35 +1,142 @@
+<!-- about.html — article-style About page using styles.css + script.js -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Services and Pricing</title>
-    <link rel="stylesheet" href="styles2.css">
+  <meta charset="UTF-8" />
+  <title>About Us • E‑Bike Rentals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
 </head>
-<body>
-    <nav>
-         <header>
-        <h2 class="logo"> Bike Logo</h2>
-        <nav>
-                <a href="index.html">Home</a>
-                <a href="about.html">About Us</a>
-                <a href="services.html">Services</a>
-                <a href="map.html">Bike Map</a>
-                <a href="contact.html">Contact</a>
-        </nav>
-        <button>
+<body id="top" class="sidebar-expanded">
+  <!-- Floating mobile menu button -->
+  <button class="menu-fab" id="globalMenuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 
-        </button>
-    </header>
+  <!-- Sidebar / Drawer -->
+  <header id="sidebar" class="sidebar" role="navigation" aria-label="Main">
+    <div class="image-container">
+      <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo" />
+    </div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About Us</a>
+      <a href="services.html">Services</a>
+      <a href="map.html">Bike Map</a>
+      <a href="contact.html">Contact</a>
     </nav>
-    <main>
-        <div>
-            <h1>About Us</h1>
-            <p>Inspired by the easily accessible public transport for shorter distance/sidewalk traffic in some of team members hometowns, we decided to bring something similar to Rexburg. I-Transport is a system of rentable electric bikes or scooters that will be available in various different locations for students to rent. We strive to give students more oppurtunities by giving them more modes of transport!</p>
+
+    <!-- Desktop collapse toggle -->
+    <button class="menu-toggle container" aria-label="Toggle menu" aria-expanded="true" onclick="myFunction(this)">
+      <span class="bar1"></span>
+      <span class="bar2"></span>
+      <span class="bar3"></span>
+    </button>
+  </header>
+
+  <!-- Scrim for mobile drawer -->
+  <div class="scrim" onclick="closeDrawer()"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" style="margin-bottom:20px">
+      <div class="hero__text">
+        <h1>We’re students building micromobility for students</h1>
+        <p class="muted">
+          Inspired by bike‑friendly transit in our hometowns, we’re bringing a simple,
+          student‑first e‑bike and scooter rental to Rexburg—so short trips are faster, affordable, and fun.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="map.html">Open Bike Map</a>
+          <a class="btn" href="services.html">See Vehicles & Pricing</a>
         </div>
-    </main>
-    <footer>
-        <p>&copy; companyname</p>
-    </footer>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="circle"></div>
+        <div class="bike"></div>
+      </div>
+    </section>
+
+    <!-- Article-style sections (full-width inside main) -->
+    <section class="about-list" aria-labelledby="about-heading">
+      <h2 id="about-heading" class="visually-hidden">About E‑Bike Rentals</h2>
+
+      <article class="about-item">
+        <div class="about-icon">🎯</div>
+        <h2>Our Mission</h2>
+        <p class="lead">
+          Give students more ways to move around campus—safely, clearly, and on‑demand.
+          If it helps classmates get around easier, we’re in.
+        </p>
+      </article>
+
+      <article class="about-item">
+        <div class="about-icon">⚙️</div>
+        <h2>How It Works</h2>
+        <ul class="about-steps">
+          <li>Sign in on the map page.</li>
+          <li>Pick a green marker and tap “Rent Now.”</li>
+          <li>Ride. The timer runs while you do.</li>
+          <li>Tap “End Ride” where you stop—the app calculates your cost.</li>
+        </ul>
+      </article>
+
+      <article class="about-item">
+        <div class="about-icon">💸</div>
+        <h2>Transparent Pricing</h2>
+        <p class="lead">
+          Bikes & Snow‑bikes: $0.50/min. E‑bikes & Scooters: $1.00/min.
+          Charges are rounded up to whole minutes—no hidden fees.
+        </p>
+      </article>
+
+      <article class="about-item">
+        <div class="about-icon">🛠️</div>
+        <h2>Built at a Hackathon</h2>
+        <p class="lead">
+          A lightweight Flask backend with a Google Maps front end.
+          In‑memory data keeps it simple for demos—restart to reset.
+        </p>
+      </article>
+    </section>
+
+    <!-- CTA -->
+    <section class="panel promo" style="margin-top:20px">
+      <h2>Ready to ride?</h2>
+      <p>Open the map, sign in, and pick any green marker to start a rental.</p>
+      <a class="btn primary" href="map.html">Try the demo</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 E‑Bike Rentals. All rights reserved.</p>
+    <a href="#top">Back to Top</a>
+  </footer>
+
+  <!-- Minimal wiring for the floating mobile menu button -->
+  <script>
+    (function(){
+      const btn = document.getElementById('globalMenuBtn');
+      if (!btn) return;
+
+      const open = window.openDrawer || function(){ document.body.classList.add('nav-open'); };
+      const close = window.closeDrawer || function(){ document.body.classList.remove('nav-open'); };
+      window.openDrawer = open; window.closeDrawer = close;
+
+      btn.addEventListener('click', function(){
+        open();
+        btn.setAttribute('aria-expanded','true');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          close();
+          btn.setAttribute('aria-expanded','false');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

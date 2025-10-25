@@ -1,25 +1,21 @@
-<!-- services.html (updated so all pictures line up) -->
+<!-- service.html (Services & Pricing page using styles.css + script.js) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< Updated upstream
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Details of the different vehicles Avalable for rent">
-    <title>Services and Pricing</title>
-    <link rel="stylesheet" href="styles3.css">
-=======
   <meta charset="UTF-8" />
-  <title>Services & Pricing</title>
+  <title>Services & Pricing • E‑Bike Rentals</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Use the SAME stylesheet as index -->
   <link rel="stylesheet" href="styles.css" />
   <script src="script.js" defer></script>
->>>>>>> Stashed changes
 </head>
 <body id="top" class="sidebar-expanded">
+  <!-- Floating mobile menu button -->
+  <button class="menu-fab" id="globalMenuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
   <!-- Sidebar / Drawer -->
-  <header class="sidebar" role="navigation" aria-label="Main">
+  <header id="sidebar" class="sidebar" role="navigation" aria-label="Main">
     <div class="image-container">
       <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo" />
     </div>
@@ -32,6 +28,7 @@
       <a href="contact.html">Contact</a>
     </nav>
 
+    <!-- Desktop collapse toggle -->
     <button class="menu-toggle container" aria-label="Toggle menu" aria-expanded="true" onclick="myFunction(this)">
       <span class="bar1"></span>
       <span class="bar2"></span>
@@ -58,24 +55,17 @@
       </div>
     </section>
 
-    <!-- Cards grid -->
+    <!-- Services grid -->
     <section class="features">
       <article class="card">
         <div class="card__media">
           <img class="card__img" loading="lazy" src="images/bike.jpg" alt="Campus bike near a rack">
         </div>
-<<<<<<< Updated upstream
-    </header>
-    <main>
-        <div class="product title">
-        <h1>Vehicle Avalable for rent</h1>
-=======
         <div class="card__body">
           <div class="icon">🚲</div>
           <h3>Bike</h3>
           <p><strong>$0.50/min</strong></p>
           <p class="muted">Simple, reliable, and great for flat routes. No charging needed.</p>
->>>>>>> Stashed changes
         </div>
       </article>
 
@@ -128,5 +118,40 @@
     <p>&copy; 2025 E‑Bike Rentals. All rights reserved.</p>
     <a href="#top">Back to Top</a>
   </footer>
+
+  <!-- Minimal wiring for floating mobile menu button -->
+  <script>
+    (function(){
+      const btn = document.getElementById('globalMenuBtn');
+      if (!btn) {
+        // Create if missing (in case this page is opened standalone)
+        const b = document.createElement('button');
+        b.className = 'menu-fab';
+        b.id = 'globalMenuBtn';
+        b.setAttribute('aria-label','Open menu');
+        b.setAttribute('aria-controls','sidebar');
+        b.setAttribute('aria-expanded','false');
+        b.innerHTML = '<span></span><span></span><span></span>';
+        document.body.prepend(b);
+      }
+      const trigger = document.getElementById('globalMenuBtn');
+
+      const open = window.openDrawer || function(){ document.body.classList.add('nav-open'); };
+      const close = window.closeDrawer || function(){ document.body.classList.remove('nav-open'); };
+      window.openDrawer = open; window.closeDrawer = close;
+
+      trigger.addEventListener('click', function(){
+        open();
+        trigger.setAttribute('aria-expanded','true');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          close();
+          trigger.setAttribute('aria-expanded','false');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -94,15 +94,6 @@ main {
   min-height: 100vh;
 }
 
-<<<<<<< Updated upstream
-/* Product and pricing page */
-.product {
-    width: 850px;
-    border: var(--primary-color) 1px solid;
-    border-radius: 20px;
-    background-color: var(--primary-color);
-    margin: 0 auto;
-=======
 /* Title banner */
 .title {
   max-width: 1100px;
@@ -115,7 +106,6 @@ main {
   letter-spacing: 0.5px;
   color: #1a1a1a;
   box-shadow: 0 8px 24px rgba(17,17,17,.04);
->>>>>>> Stashed changes
 }
 .title h1 { font-size: 1.8rem; }
 
@@ -149,16 +139,6 @@ main {
   border: 2px solid #eaf3ff;
   border-radius: 12px;
 }
-<<<<<<< Updated upstream
-.price-box p, .price-box h2 {
-    text-align: center;
-    margin: 10px;
-    padding: 0 90px;
-    color: var(--accent1-color);
-}
-/* end of product and pricing page */
-=======
->>>>>>> Stashed changes
 
 .price-box h2 {
   margin: 2px 0 6px;

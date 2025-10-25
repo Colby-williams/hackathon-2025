@@ -1,59 +1,189 @@
+<!-- contact.html — clean, responsive contact page using styles.css + script.js -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A form to contact the company for help">
-    <title>Services and Pricing</title>
-    <link rel="stylesheet" href="styles2.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <title>Contact Us • E‑Bike Rentals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Contact E‑Bike Rentals for support, questions, or feedback." />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
 </head>
-<body>
-    <header>
-        <div class="image-container">
-            <img src="images/logo_ChatGPT.png" alt="Logo">
+<body id="top" class="sidebar-expanded">
+  <!-- Floating mobile menu button -->
+  <button class="menu-fab" id="globalMenuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Sidebar / Drawer -->
+  <header id="sidebar" class="sidebar" role="navigation" aria-label="Main">
+    <div class="image-container">
+      <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo" />
+    </div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="services.html">Services</a>
+      <a href="map.html">Bike Map</a>
+      <a href="contact.html" class="active">Contact</a>
+    </nav>
+
+    <!-- Desktop collapse toggle -->
+    <button class="menu-toggle container" aria-label="Toggle menu" aria-expanded="true" onclick="myFunction(this)">
+      <span class="bar1"></span>
+      <span class="bar2"></span>
+      <span class="bar3"></span>
+    </button>
+  </header>
+
+  <!-- Scrim for mobile drawer -->
+  <div class="scrim" onclick="closeDrawer()"></div>
+
+  <main>
+    <!-- Intro -->
+    <section class="hero" style="margin-bottom:20px">
+      <div class="hero__text">
+        <h1>Contact Us</h1>
+        <p class="muted">Questions, bugs, or feedback? Send us a message—we’ll get back within one business day.</p>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="circle"></div>
+        <div class="bike"></div>
+      </div>
+    </section>
+
+    <!-- Contact Grid -->
+    <section class="contact-grid">
+      <!-- Form -->
+      <article class="card form-card">
+        <h2>Send a message</h2>
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <label for="name">Name</label>
+            <input required type="text" id="name" name="name" placeholder="Your full name" />
+            <span class="field-hint">Required</span>
+          </div>
+
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input required type="email" id="email" name="email" placeholder="you@school.edu" />
+            <span class="field-hint">We’ll reply here</span>
+          </div>
+
+          <div class="form-row">
+            <label for="message">Message</label>
+            <textarea required id="message" name="message" rows="6" placeholder="How can we help?"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Send message</button>
+            <button type="reset" class="btn" id="resetBtn">Reset</button>
+            <span id="formStatus" class="form-status" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </article>
+
+      <!-- Contact info -->
+      <aside class="card contact-card" aria-label="Contact information">
+        <h2>Reach us directly</h2>
+        <ul class="contact-list">
+          <li>
+            <span class="ci">📧</span>
+            <div>
+              <div class="ci-label">Email</div>
+              <a href="mailto:ebikesforyou@gmail.com">ebikesforyou@gmail.com</a>
+            </div>
+          </li>
+          <li>
+            <span class="ci">📞</span>
+            <div>
+              <div class="ci-label">Phone</div>
+              <a href="tel:+12083024537">(208) 302‑4537</a>
+            </div>
+          </li>
+          <li>
+            <span class="ci">🕒</span>
+            <div>
+              <div class="ci-label">Hours</div>
+              <div class="muted">Mon–Fri · 8:00–16:00</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="note">
+          For billing or account issues, include your username (e.g., u123) so we can help faster.
         </div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="services.html">Services</a>
-            <a href="map.html">Bike Map</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-        <!-- Learned from w3schools -->
-        <div class="container" onclick="myFunction(this)">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
-        </div>
-    </header>
-    <main>
-        <div id="feedback"></div>
-    <form action="/my-handling-form-page" method="post">
-        <p>
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="user_name" />
-        </p>
-        <p>
-            <label for="mail">Email:</label>
-            <input type="email" id="mail" name="user_email" />
-        </p>
-        <p>
-            <label for="msg">Message:</label>
-            <textarea id="msg" name="user_message"></textarea>
-        </p>
-        <p class="button">
-            <button type="submit">Send your message</button>
-        </p>
-    </form>
-        <div class="contact">
-            <p>Have Questions? Feel free to call us during our business hours of 8-4 Monday through Friday or send us an email!</p>
-            <p><strong>Email:</strong> ebikesforyou@gmail.com</p>
-            <p><strong>Phone:</strong> (208)302-4537</p>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; companyname</p>
-    </footer>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 E‑Bike Rentals. All rights reserved.</p>
+    <a href="#top">Back to Top</a>
+  </footer>
+
+  <!-- Minimal wiring for the floating mobile menu button + simple form handler -->
+  <script>
+    (function(){
+      // Floating menu
+      const btn = document.getElementById('globalMenuBtn');
+      if (btn){
+        const open = window.openDrawer || function(){ document.body.classList.add('nav-open'); };
+        const close = window.closeDrawer || function(){ document.body.classList.remove('nav-open'); };
+        window.openDrawer = open; window.closeDrawer = close;
+
+        btn.addEventListener('click', function(){
+          open();
+          btn.setAttribute('aria-expanded','true');
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            close();
+            btn.setAttribute('aria-expanded','false');
+          }
+        });
+      }
+
+      // Contact form (demo-only)
+      const form = document.getElementById('contactForm');
+      const statusEl = document.getElementById('formStatus');
+      const resetBtn = document.getElementById('resetBtn');
+
+      function validateEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+      if (form){
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          statusEl.textContent = '';
+          const name = form.name.value.trim();
+          const email = form.email.value.trim();
+          const message = form.message.value.trim();
+
+          if (!name || !email || !message) {
+            statusEl.textContent = 'Please fill out all required fields.';
+            statusEl.className = 'form-status error';
+            return;
+          }
+          if (!validateEmail(email)) {
+            statusEl.textContent = 'Please enter a valid email address.';
+            statusEl.className = 'form-status error';
+            return;
+          }
+          statusEl.textContent = 'Sending…';
+          statusEl.className = 'form-status';
+          await new Promise(r => setTimeout(r, 700));
+          statusEl.textContent = 'Thanks! We received your message and will reply soon.';
+          statusEl.className = 'form-status success';
+          form.reset();
+        });
+
+        resetBtn.addEventListener('click', () => {
+          statusEl.textContent = '';
+          statusEl.className = 'form-status';
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

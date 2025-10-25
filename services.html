@@ -1,51 +1,132 @@
+<!-- services.html (updated so all pictures line up) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< Updated upstream
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Details of the different vehicles Avalable for rent">
     <title>Services and Pricing</title>
     <link rel="stylesheet" href="styles3.css">
+=======
+  <meta charset="UTF-8" />
+  <title>Services & Pricing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Use the SAME stylesheet as index -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
+>>>>>>> Stashed changes
 </head>
-<body>
-    <header>
-        <div class="image-container">
-            <img src="images/logo_ChatGPT.png" alt="Logo">
+<body id="top" class="sidebar-expanded">
+  <!-- Sidebar / Drawer -->
+  <header class="sidebar" role="navigation" aria-label="Main">
+    <div class="image-container">
+      <img src="images/logo_ChatGPT.png" alt="E‑Bike Rentals Logo" />
+    </div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="services.html" class="active">Services</a>
+      <a href="map.html">Bike Map</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <button class="menu-toggle container" aria-label="Toggle menu" aria-expanded="true" onclick="myFunction(this)">
+      <span class="bar1"></span>
+      <span class="bar2"></span>
+      <span class="bar3"></span>
+    </button>
+  </header>
+
+  <!-- Scrim for mobile drawer -->
+  <div class="scrim" onclick="closeDrawer()"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" style="margin-bottom:20px">
+      <div class="hero__text">
+        <h1>Vehicles & Pricing</h1>
+        <p class="muted">Pick the ride that fits your trip. Pay only for the minutes you use.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="map.html">Open Bike Map</a>
         </div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="services.html">Services</a>
-            <a href="map.html">Bike Map</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-        <!-- Learned from w3schools -->
-        <div class="container" onclick="myFunction(this)">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="circle"></div>
+        <div class="bike"></div>
+      </div>
+    </section>
+
+    <!-- Cards grid -->
+    <section class="features">
+      <article class="card">
+        <div class="card__media">
+          <img class="card__img" loading="lazy" src="images/bike.jpg" alt="Campus bike near a rack">
         </div>
+<<<<<<< Updated upstream
     </header>
     <main>
         <div class="product title">
         <h1>Vehicle Avalable for rent</h1>
+=======
+        <div class="card__body">
+          <div class="icon">🚲</div>
+          <h3>Bike</h3>
+          <p><strong>$0.50/min</strong></p>
+          <p class="muted">Simple, reliable, and great for flat routes. No charging needed.</p>
+>>>>>>> Stashed changes
         </div>
-        <div class="price-box">
-            <img src="images/ebike.jpg" alt="the front tire of someone holding a blue E-bike with a blue helmet hanging from the handle bars">
-            <h2>E-Bikes</h2>
-            <p><strong>Price: $1.00 Per minute</strong></p>
-            <p>Here we got the latest model of E bike with 90 miles worth of battery off of a single charge, with all the coolest technology like state of the art blinkers, Shiney head lights, and a dule power system of peddles and battery power.</p>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img class="card__img" loading="lazy" src="images/snowbike.jpg" alt="Snow‑bike on a snowy path">
         </div>
-        <div class="price-box">
-            <img src="images/scooter.jpg" alt="Man with a backpack and sunglasses riding an electric scooter">
-            <h2>E-Scooters</h2>
-            <p><strong>Price: $0.50 Per minute</strong></p>
-            <p>Travel in style and comfort with your easy going no pedling ride. With a Battery capacity of 79 miles, you can travel all arround Rexurg on a smooth sleek new look. Nothing better than the freedom of your own ride. The cool breeze as you glide accross the pavement.</p>
+        <div class="card__body">
+          <div class="icon">❄️🚲</div>
+          <h3>Snow‑Bike</h3>
+          <p><strong>$0.50/min</strong></p>
+          <p class="muted">All‑weather tires and a stable winter ride for snowy days.</p>
         </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 E-Bike Rentals. All rights reserved.</p>
-        <a href="#top">Back to Top</a>
-    </footer>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img class="card__img" loading="lazy" src="images/ebike.jpg" alt="Rider holding an e‑bike with helmet">
+        </div>
+        <div class="card__body">
+          <div class="icon">⚡🚲</div>
+          <h3>E‑Bike</h3>
+          <p><strong>$1.00/min</strong></p>
+          <p class="muted">Pedal assist up to 20 mph with long‑range battery for hills and longer trips.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img class="card__img" loading="lazy" src="images/scooter.jpg" alt="Person riding an e‑scooter on campus">
+        </div>
+        <div class="card__body">
+          <div class="icon">🛴</div>
+          <h3>E‑Scooter</h3>
+          <p><strong>$1.00/min</strong></p>
+          <p class="muted">Compact and nimble for quick hops between buildings—no pedaling.</p>
+        </div>
+      </article>
+    </section>
+
+    <!-- Promo panel -->
+    <section class="panel promo" style="margin-top:20px">
+      <h2>Ready to ride?</h2>
+      <p>Sign in on the map page and pick any green marker to start a rental.</p>
+      <a class="btn primary" href="map.html">Go to Map</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 E‑Bike Rentals. All rights reserved.</p>
+    <a href="#top">Back to Top</a>
+  </footer>
 </body>
 </html>

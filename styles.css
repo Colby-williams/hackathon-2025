@@ -17,17 +17,21 @@
 header {
     background-color: var(--primary-color);
     height: 100vh;
-    width: 220px;
+    width: 200px;
     position: fixed;
-    display: flex;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    /* display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: center; */
     padding-top: 30px;
 }
 
 .logo {
     color: var(--accent1-color);
+    padding: 15px;
     margin-bottom: 20px;
 }
 
@@ -58,7 +62,7 @@ nav a:hover {
 }
 
 main {
-    margin-left: 220px;
+    margin-left: 200px;
     padding: 40px;
     background-color: var(--accent2-color);
     min-height: 100vh;

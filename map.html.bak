@@ -394,35 +394,31 @@ New:
 
   // ------- InfoWindow -------
   function buildInfoWindowHtml(b) {
-  const availability = b.is_available ? `<span class="pill ok">Available</span>` : `<span class="pill bad">Rented</span>`;
-  const price = (b.per_minute_cents / 100).toFixed(2);
-  const negBlock = balanceCents < 0;
-  const hasBattery = b.battery_percent !== undefined && b.battery_percent !== null;
+    const availability = b.is_available ? `<span class="pill ok">Available</span>` : `<span class="pill bad">Rented</span>`;
+    const price = (b.per_minute_cents / 100).toFixed(2);
+    const negBlock = balanceCents < 0;
 
-  let actions = "";
-  if (b.is_available) {
-    if (!currentUserId) actions = `<span class="muted">Sign in to rent.</span>`;
-    else if (negBlock) actions = `<span class="muted">Your balance is negative. Open Account to deposit.</span>`;
-    else if (rentalId) actions = `<span class="muted">You already have an active rental.</span>`;
-    else if (hasBattery && b.battery_percent <= 0) actions = `<button id="rechargeBtn-${b.id}" class="primary">Recharge</button>`;
-    else actions = `<button id="rentBtn-${b.id}" class="primary">Rent Now</button>`;
-  } else {
-    const isMine = b.rented_by_user_id === currentUserId;
-    actions = isMine ? `<button id="endHereBtn-${b.id}">End Ride Here</button>` : `<span class="muted">Rented by ${b.rented_by_user_id}</span>`;
+    let actions = "";
+    if (b.is_available) {
+      if (!currentUserId) actions = `<span class="muted">Sign in to rent.</span>`;
+      else if (negBlock) actions = `<span class="muted">Your balance is negative. Open Account to deposit.</span>`;
+      else if (rentalId) actions = `<span class="muted">You already have an active rental.</span>`;
+      else actions = `<button id="rentBtn-${b.id}" class="primary">Rent Now</button>`;
+    } else {
+      const isMine = b.rented_by_user_id === currentUserId;
+      actions = isMine ? `<button id="endHereBtn-${b.id}">End Ride Here</button>` : `<span class="muted">Rented by ${b.rented_by_user_id}</span>`;
+    }
+
+    return `
+      <div id="win-${b.id}" style="min-width:260px">
+        <div style="font-weight:600; margin-bottom:4px;">${b.vehicle_type.toUpperCase()} • ${b.id}</div>
+        <div id="availability-${b.id}" style="margin-bottom:6px;">${availability}</div>
+        <div style="font-size:12px; color:#666; margin-bottom:6px;">$${price}/min ${b.unlock_cents ? ("+ $" + (b.unlock_cents/100).toFixed(2) + " unlock") : ""}</div>
+        <div style="font-size:12px; color:#666; margin-bottom:8px;">Lat ${b.lat.toFixed(5)}, Lng ${b.lng.toFixed(5)}</div>
+        <div class="row" id="actions-${b.id}">${actions}</div>
+      </div>
+    `;
   }
-
-  const battLine = hasBattery ? `<div style="font-size:12px; color:${(b.battery_percent<=10)?'#a11':'#666'}; margin-bottom:6px;">Battery: ${b.battery_percent}%</div>` : '';
-  return `
-    <div id="win-${b.id}" style="min-width:260px">
-      <div style="font-weight:600; margin-bottom:4px;">${b.vehicle_type.toUpperCase()} • ${b.id}</div>
-      <div id="availability-${b.id}" style="margin-bottom:6px;">${availability}</div>
-      <div style="font-size:12px; color:#666; margin-bottom:6px;">$${price}/min ${b.unlock_cents ? ("+ $" + (b.unlock_cents/100).toFixed(2) + " unlock") : ""}</div>
-      ${battLine}
-      <div style="font-size:12px; color:#666; margin-bottom:8px;">Lat ${b.lat.toFixed(5)}, Lng ${b.lng.toFixed(5)}</div>
-      <div class="row" id="actions-${b.id}">${actions}</div>
-    </div>
-  `;
-}
   function renderInfoWindow(bikeId, marker) {
     const b = bikesIndex[bikeId]; if (!b) return;
     lastInfoBikeId = bikeId; lastInfoMarker = marker;
@@ -444,10 +440,7 @@ New:
               openAccount(); accountMsg.textContent = txt || "Balance is negative. Deposit to rent.";
               await refreshBalance(); return;
             }
-            if (!res.ok) {
-            if (res.status === 409) { try { await loadBikes(); } catch(_){}; renderInfoWindow(bikeId, marker); const msg = "Battery empty. Please recharge first."; throw new Error(msg); }
-            const t = await res.text(); throw new Error(t || `HTTP ${res.status}`);
-          }
+            if (!res.ok) { const t = await res.text(); throw new Error(t || `HTTP ${res.status}`); }
             const data = await res.json();
             rentalId = data.id; window.__activeBikeId = data.bike_id; document.getElementById("endBtn").disabled = false;
             if (bikesIndex[bikeId]) { bikesIndex[bikeId].is_available = false; bikesIndex[bikeId].rented_by_user_id = currentUserId; }
@@ -455,22 +448,6 @@ New:
             updateRentalUI(data);
           } catch (e) { alert(e.message || "Failed to start rental"); }
           finally { renderInfoWindow(bikeId, marker); setTimeout(loadBikes, 250); startRentalPolling(); }
-        };
-      }
-      
-      const rechargeBtn = document.getElementById(`rechargeBtn-${bikeId}`);
-      if (rechargeBtn) {
-        rechargeBtn.onclick = async () => {
-          rechargeBtn.disabled = true; rechargeBtn.textContent = "Recharging...";
-          try {
-            const res = await fetch(`/bikes/${bikeId}/recharge`, { method: "POST", credentials: "same-origin" });
-            if (!res.ok) {
-            if (res.status === 409) { try { await loadBikes(); } catch(_){}; renderInfoWindow(bikeId, marker); const msg = "Battery empty. Please recharge first."; throw new Error(msg); }
-            const t = await res.text(); throw new Error(t || `HTTP ${res.status}`);
-          }
-            await loadBikes();
-          } catch (e) { alert(e.message || "Failed to recharge"); }
-          finally { renderInfoWindow(bikeId, marker); }
         };
       }
       const endHereBtn = document.getElementById(`endHereBtn-${bikeId}`);

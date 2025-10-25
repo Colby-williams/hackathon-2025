@@ -24,7 +24,6 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Dict, Optional, Literal
-import math
 
 from flask import Flask, jsonify, request, send_from_directory, abort, make_response
 
@@ -60,7 +59,6 @@ class Bike:
     vehicle_type: VehicleType
     lat: float
     lng: float
-    battery_percent: Optional[int] = None
     is_available: bool = True
     last_seen_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -73,17 +71,6 @@ class Rental:
     ended_at: Optional[datetime] = None
     cost_cents: Optional[int] = None
 
-
-# -------- Battery model --------
-# Simple, hackathon-friendly battery model (only e-bike & scooter):
-# Battery drains linearly with ride time. You can tweak these rates.
-BATTERY_CONSUMPTION_PERCENT_PER_MIN = {
-    "e-bike": 0.5,    # 0.5% per minute  => ~200 minutes from 100% to 0%
-    "scooter": 0.67,  # 0.67% per minute => ~150 minutes from 100% to 0%
-}
-
-# minimum % required to start a ride (allow >0)
-MIN_BATTERY_TO_START = 1
 # -------- Pricing --------
 PRICING = {
     "bike":      {"unlock_cents": 0, "per_minute_cents": 50},   # $0.50/min
@@ -108,11 +95,6 @@ bikes: Dict[str, Bike] = {
     "b11": Bike(id="b11", vehicle_type="bike",      lat=43.8208,           lng=-111.7909),
     "b12": Bike(id="b12", vehicle_type="scooter",   lat=43.8231,           lng=-111.7879),
 }
-
-# Initialize battery for e-bikes and scooters (default 100%)
-for b in bikes.values():
-    if b.vehicle_type in ("e-bike", "scooter") and b.battery_percent is None:
-        b.battery_percent = 100
 rentals: Dict[str, Rental] = {}
 bike_locks: Dict[str, threading.Lock] = {bid: threading.Lock() for bid in bikes}
 
@@ -150,7 +132,6 @@ def rental_to_dict(r: Rental, include_balance: bool = False) -> dict:
         "current_cost_estimate_cents": current_cost_estimate_cents,
         "per_minute_cents": p["per_minute_cents"],
         "unlock_cents": p["unlock_cents"],
-            "battery_percent": getattr(b, "battery_percent", None),
     }
     if include_balance:
         uid = r.user_id
@@ -283,7 +264,6 @@ def list_bikes():
             "current_rental_id": active.id if active else None,
             "per_minute_cents": p["per_minute_cents"],
             "unlock_cents": p["unlock_cents"],
-            "battery_percent": getattr(b, "battery_percent", None),
         })
     return jsonify(out)
 
@@ -311,10 +291,6 @@ def start_rental():
     with lock:
         if not bike.is_available:
             abort(409, description="Bike not available")
-
-        # Block if battery empty for e-bike/scooter
-        if getattr(bike, 'battery_percent', None) is not None and int(bike.battery_percent) < MIN_BATTERY_TO_START:
-            return jsonify({"error":"Battery empty. Please recharge first.","code":"battery_empty"}), 409
 
         bike.is_available = False
         bike.last_seen_at = utcnow()
@@ -375,14 +351,6 @@ def _end_rental_internal(rental: Rental, lat: Optional[float], lng: Optional[flo
     rental.ended_at = end_time
     rental.cost_cents = cost
 
-    # Drain battery based on duration (only for e-bike/scooter)
-    if getattr(bike, 'battery_percent', None) is not None:
-        elapsed_seconds = max(0, int((end_time - rental.started_at).total_seconds()))
-        minutes = max(1, (elapsed_seconds + 59) // 60)
-        rate = BATTERY_CONSUMPTION_PERCENT_PER_MIN.get(bike.vehicle_type, 0)
-        drain = int(math.ceil(minutes * rate)) if rate > 0 else 0
-        bike.battery_percent = max(0, int(bike.battery_percent) - drain)
-
     if lat is not None and lng is not None:
         try:
             bike.lat = float(lat)
@@ -393,34 +361,6 @@ def _end_rental_internal(rental: Rental, lat: Optional[float], lng: Optional[flo
     bike.last_seen_at = utcnow()
     return rental_to_dict(rental)
 
-
-# -------- Battery recharge --------
-@app.post("/bikes/<bike_id>/recharge")
-def recharge_bike(bike_id: str):
-    require_login()  # any signed-in user can recharge in this demo
-    bike = bikes.get(bike_id)
-    if not bike:
-        abort(404, description="Bike not found")
-    if getattr(bike, "battery_percent", None) is None:
-        abort(400, description="This vehicle type has no battery")
-    # Optional: only allow recharge if not currently rented
-    if active_rental_for_bike(bike_id):
-        abort(409, description="Cannot recharge while rented")
-    bike.battery_percent = 100
-    bike.last_seen_at = utcnow()
-    p = PRICING.get(bike.vehicle_type, {"unlock_cents": 0, "per_minute_cents": 50})
-    return jsonify({
-        "id": bike.id,
-        "vehicle_type": bike.vehicle_type,
-        "lat": bike.lat,
-        "lng": bike.lng,
-        "is_available": bike.is_available,
-        "last_seen_at": iso(bike.last_seen_at),
-        "battery_percent": bike.battery_percent,
-        "per_minute_cents": p["per_minute_cents"],
-        "unlock_cents": p["unlock_cents"],
-    })
-
 # -------- Debug --------
 @app.post("/debug/reset")
 def reset_state():
@@ -428,8 +368,6 @@ def reset_state():
     for b in bikes.values():
         b.is_available = True
         b.last_seen_at = utcnow()
-        if getattr(b, "battery_percent", None) is not None:
-            b.battery_percent = 100
     # Reset balances to starters
     for uid, u in USERS.items():
         u["balance_cents"] = 2000 if uid == "u123" else 1000 if uid == "u124" else 500

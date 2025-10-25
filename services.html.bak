@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services and Pricing</title>
+    <link rel="stylesheet" href="styles3.css">
+</head>
+<body>
+    <header>
+        <div class="image-container">
+            <img src="images/logo_ChatGPT.png" alt="Logo">
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="services.html">Services</a>
+            <a href="map.html">Bike Map</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+        <!-- Learned from w3schools -->
+        <div class="container" onclick="myFunction(this)">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+        </div>
+    </header>
+    <main>
+        <div class="product, title">
+        <h1>Vehicle Avalable for rent</h1>
+        </div>
+        <div class="price-box">
+            <img src="images/ebike.jpg" alt="the front tire of someone holding a blue E-bike with a blue helmet hanging from the handle bars">
+            <h2>E-Bikes</h2>
+            <p><strong>Price: $1.00 Per minute</strong></p>
+            <p>Here we got the latest model of E bike with 90 miles worth of battery off of a single charge, with all the coolest technology like state of the art blinkers, Shiney head lights, and a dule power system of peddles and battery power.</p>
+        </div>
+        <div class="price-box">
+            <img src="images/scooter.jpg" alt="Man with a backpack and sunglasses riding an electric scooter">
+            <h2>E-Scooters</h2>
+            <p><strong>Price: $0.50 Per minute</strong></p>
+            <p>Travel in style and comfort with your easy going no pedling ride. With a Battery capacity of 79 miles, you can travel all arround Rexurg on a smooth sleek new look. Nothing better than the freedom of your own ride. The cool breeze as you glide accross the pavement.</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 E-Bike Rentals. All rights reserved.</p>
+        <a href="#top">Back to Top</a>
+    </footer>
+</body>
+</html>
